@@ -1,6 +1,9 @@
 package mesosphere.marathon
 package api.serialization
 
+import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.google.protobuf.ByteString
 import mesosphere.marathon.core.externalvolume.ExternalVolumes
 import mesosphere.marathon.core.pod.{ BridgeNetwork, ContainerNetwork, HostNetwork, Network }
 import mesosphere.marathon.state.Container.PortMapping
@@ -309,18 +312,51 @@ object ParameterSerializer {
 
 }
 
-object CredentialSerializer {
-  def fromMesos(credential: mesos.Protos.Credential): Container.Credential = {
-    Container.Credential(
-      credential.getPrincipal,
-      if (credential.hasSecret) Some(credential.getSecret) else None
-    )
+object DockerConfigSerializer {
+  def fromMesos(secret: mesos.Protos.Secret): Container.DockerConfig = {
+    if (secret.hasType) {
+      secret.getType match {
+        case mesos.Protos.Secret.Type.VALUE =>
+          if (secret.hasValue) {
+            Container.DockerConfig(secret.getValue.getData.toStringUtf8)
+          } else {
+            Container.DockerConfig("")
+          }
+        case mesos.Protos.Secret.Type.REFERENCE =>
+          if (secret.hasReference) {
+            Container.DockerConfig(secret.getReference.getName)
+          } else {
+            Container.DockerConfig("")
+          }
+        case mesos.Protos.Secret.Type.UNKNOWN =>
+          Container.DockerConfig("")
+      }
+    } else {
+      Container.DockerConfig("")
+    }
   }
 
-  def toMesos(credential: Container.Credential): mesos.Protos.Credential = {
-    val builder = mesos.Protos.Credential.newBuilder
-      .setPrincipal(credential.principal)
-    credential.secret.foreach(builder.setSecret)
+  def toMesos(config: Container.DockerConfig): mesos.Protos.Secret = {
+    val isValue = try {
+      val mapper = new ObjectMapper
+      val tree = mapper.readTree(config.value)
+      tree.isObject
+    } catch {
+      case _: JsonParseException => true
+    }
+
+    val builder = mesos.Protos.Secret.newBuilder
+    if (isValue) {
+      builder.setType(mesos.Protos.Secret.Type.VALUE)
+      val valueBuilder = mesos.Protos.Secret.Value.newBuilder
+      valueBuilder.setData(ByteString.copyFromUtf8(config.value))
+      builder.setValue(valueBuilder.build)
+    } else {
+      builder.setType(mesos.Protos.Secret.Type.REFERENCE)
+      val referenceBuilder = mesos.Protos.Secret.Reference.newBuilder
+      referenceBuilder.setName(config.value)
+      builder.setReference(referenceBuilder.build)
+    }
     builder.build
   }
 }
@@ -333,7 +369,7 @@ object MesosDockerSerializer {
       volumes = proto.getVolumesList.map(Volume(_))(collection.breakOut),
       portMappings = pms.map(PortMappingSerializer.fromProto)(collection.breakOut),
       image = d.getImage,
-      credential = if (d.hasCredential) Some(CredentialSerializer.fromMesos(d.getCredential)) else None,
+      config = if (d.hasConfig) Some(DockerConfigSerializer.fromMesos(d.getConfig)) else None,
       forcePullImage = if (d.hasForcePullImage) d.getForcePullImage else false
     )
   }
@@ -343,8 +379,8 @@ object MesosDockerSerializer {
       .setImage(docker.image)
       .setForcePullImage(docker.forcePullImage)
 
-    docker.credential.foreach { credential =>
-      builder.setCredential(CredentialSerializer.toMesos(credential))
+    docker.config.foreach { config =>
+      builder.setConfig(DockerConfigSerializer.toMesos(config))
     }
 
     builder.build
@@ -354,8 +390,8 @@ object MesosDockerSerializer {
     val dockerBuilder = mesos.Protos.Image.Docker.newBuilder
       .setName(container.image)
 
-    container.credential.foreach { credential =>
-      dockerBuilder.setCredential(CredentialSerializer.toMesos(credential))
+    container.config.foreach { config =>
+      dockerBuilder.setConfig(DockerConfigSerializer.toMesos(config))
     }
 
     val imageBuilder = mesos.Protos.Image.newBuilder

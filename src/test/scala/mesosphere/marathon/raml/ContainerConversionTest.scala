@@ -46,7 +46,7 @@ class ContainerConversionTest extends UnitTest {
 
   "A Mesos Docker container is converted" when {
     "a mesos-docker container" should {
-      val container = state.Container.MesosDocker(Seq(coreHostVolume), "test", Seq(corePortMapping), Some(credentials))
+      val container = state.Container.MesosDocker(Seq(coreHostVolume), "test", Seq(corePortMapping), Some(config))
       val raml = container.toRaml[Container]
 
       behave like convertToProtobufThenToRAML(container, raml)
@@ -58,20 +58,19 @@ class ContainerConversionTest extends UnitTest {
         raml.portMappings should contain(Seq(ramlPortMapping))
         raml.docker should be(defined)
         raml.docker.get.image should be("test")
-        raml.docker.get.credential should be(defined)
-        raml.docker.get.credential.get.principal should be(credentials.principal)
-        raml.docker.get.credential.get.secret should be(credentials.secret)
+        raml.docker.get.config should be(defined)
+        raml.docker.get.config.get should be(config.value)
       }
     }
     "a mesos-docker container w/o port mappings" should {
-      val container = state.Container.MesosDocker(Seq(coreHostVolume), "test", portMappings = Seq.empty, Some(credentials))
+      val container = state.Container.MesosDocker(Seq(coreHostVolume), "test", portMappings = Seq.empty, Some(config))
       val raml = container.toRaml[Container]
       behave like convertToProtobufThenToRAML(container, raml)
     }
     "a RAML container" should {
       "convert to a mesos-docker container" in {
         val container = Container(EngineType.Mesos, portMappings = Option(Seq(ramlPortMapping)), docker = Some(DockerContainer(
-          image = "foo", credential = Some(DockerCredentials(credentials.principal, credentials.secret)))),
+          image = "foo", config = Some(config.value))),
           volumes = Seq(ramlHostVolume))
         val mc = Some(container.fromRaml).collect {
           case c: state.Container.MesosDocker => c
@@ -79,7 +78,7 @@ class ContainerConversionTest extends UnitTest {
         mc.portMappings should be(Seq(corePortMapping))
         mc.volumes should be(Seq(coreHostVolume))
         mc.image should be("foo")
-        mc.credential should be(Some(credentials))
+        mc.config should be(Some(config))
         mc.forcePullImage should be(container.docker.head.forcePullImage)
       }
     }
@@ -210,7 +209,7 @@ class ContainerConversionTest extends UnitTest {
         raml.volumes should be(Seq(ramlHostVolume))
         raml.docker should be(defined)
         raml.docker.get.image should be("test")
-        raml.docker.get.credential should be(empty)
+        raml.docker.get.config should be(empty)
         raml.docker.get.network should be(empty)
         raml.portMappings should contain(Seq(ramlPortMapping))
       }
@@ -237,7 +236,7 @@ class ContainerConversionTest extends UnitTest {
     }
   }
 
-  private lazy val credentials = state.Container.Credential("principal", Some("secret"))
+  private lazy val config = state.Container.DockerConfig("{ \"auths\": { \"hub.docker.com\": { \"auth\": \"amRvZToxMjM0NQo=\" } } }")
   private lazy val ramlPortMapping = ContainerPortMapping(
     containerPort = 80,
     hostPort = Some(90),

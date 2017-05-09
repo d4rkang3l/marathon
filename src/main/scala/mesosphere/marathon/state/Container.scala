@@ -90,15 +90,13 @@ object Container {
     val HostPortDefault = AppDefinition.RandomPortValue // HostPortDefault only applies when in BRIDGE mode
   }
 
-  case class Credential(
-    principal: String,
-    secret: Option[String] = None)
+  case class DockerConfig(value: String)
 
   case class MesosDocker(
       volumes: Seq[Volume] = Seq.empty,
       image: String = "",
       override val portMappings: Seq[PortMapping] = Nil,
-      credential: Option[Credential] = None,
+      config: Option[DockerConfig] = None,
       forcePullImage: Boolean = false) extends Container {
 
     override def copyWith(portMappings: Seq[PortMapping] = portMappings, volumes: Seq[Volume] = volumes) =

@@ -394,34 +394,6 @@ class AppDefinitionFormatsTest extends UnitTest
       )))
     }
 
-    "FromJSON should throw a validation exception while parsing a Docker container with unsupported parameter" in {
-      // credential is currently not supported
-      AppValidation.validateOldAppAPI(
-        Json.parse(
-        """{
-          |  "id": "test",
-          |  "container": {
-          |    "type": "DOCKER",
-          |    "docker": {
-          |      "image": "busybox",
-          |      "credential": {
-          |        "principal": "aPrincipal",
-          |        "secret": "aSecret"
-          |      }
-          |    }
-          |  }
-          |}""".stripMargin).as[raml.App]
-      ) should failWith(
-        GroupViolationMatcher(
-          description = "container",
-          constraint = "is invalid",
-          violations = Set(
-            group("docker", "is invalid", "credential" -> "must be empty")
-          )
-        )
-      )
-    }
-
     "FromJSON should parse Mesos Docker container" in {
       val appDef = normalizeAndConvert(Json.parse(
         """{

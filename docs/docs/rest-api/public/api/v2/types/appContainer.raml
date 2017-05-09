@@ -12,16 +12,6 @@ types:
     enum: [MESOS, DOCKER]
     description: |
       Container engine type. Supported engine types at the moment are DOCKER and MESOS.
-  DockerCredentials:
-    type: object
-    description: Credential to authenticate with the docker registry
-    properties:
-      principal:
-        type: string
-        description: Principal to authenticate with the docker registry
-      secret?:
-        type: string
-        description: Secret to authenticate with the docker registry
   DockerNetwork:
     type: string
     enum: [BRIDGE, HOST, NONE, USER]
@@ -109,11 +99,11 @@ types:
   DockerContainer:
     type: object
     properties:
-      credential?:
-        type: DockerCredentials
+      config?:
+        type: string
+        minLength: 1
         description: |
-          The credentials to fetch this container.
-          Please note: this property is supported only with the Mesos containerizer, not the docker containerizer.
+          Docker config.json. It must be provided either inline or as a reference into DC/OS EE Secret Store.
       forcePullImage?:
         type: boolean
         description: |

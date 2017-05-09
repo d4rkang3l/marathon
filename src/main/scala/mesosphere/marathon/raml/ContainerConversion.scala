@@ -51,8 +51,8 @@ trait ContainerConversion extends HealthCheckConversion with VolumeConversion wi
 
   implicit val containerWrites: Writes[state.Container, Container] = Writes { container =>
 
-    implicit val credentialWrites: Writes[state.Container.Credential, DockerCredentials] = Writes { credentials =>
-      DockerCredentials(credentials.principal, credentials.secret)
+    implicit val configWrites: Writes[state.Container.DockerConfig, String] = Writes { config =>
+      config.value
     }
 
     implicit val dockerDockerContainerWrites: Writes[state.Container.Docker, DockerContainer] = Writes { container =>
@@ -66,7 +66,7 @@ trait ContainerConversion extends HealthCheckConversion with VolumeConversion wi
     implicit val mesosDockerContainerWrites: Writes[state.Container.MesosDocker, DockerContainer] = Writes { container =>
       DockerContainer(
         image = container.image,
-        credential = container.credential.toRaml,
+        config = container.config.map(c => c.value),
         forcePullImage = container.forcePullImage)
     }
 
@@ -84,7 +84,7 @@ trait ContainerConversion extends HealthCheckConversion with VolumeConversion wi
       case docker: state.Container.Docker => create(EngineType.Docker, docker = Some(docker.toRaml[DockerContainer]))
       case mesos: state.Container.MesosDocker => create(EngineType.Mesos, docker = Some(mesos.toRaml[DockerContainer]))
       case mesos: state.Container.MesosAppC => create(EngineType.Mesos, appc = Some(mesos.toRaml[AppCContainer]))
-      case mesos: state.Container.Mesos => create(EngineType.Mesos)
+      case _: state.Container.Mesos => create(EngineType.Mesos)
     }
   }
 
@@ -107,7 +107,7 @@ trait ContainerConversion extends HealthCheckConversion with VolumeConversion wi
           volumes = volumes,
           image = docker.image,
           portMappings = portMappings, // assumed already normalized, see AppNormalization
-          credential = docker.credential.map(c => state.Container.Credential(principal = c.principal, secret = c.secret)),
+          config = docker.config.map(value => state.Container.DockerConfig(value)),
           forcePullImage = docker.forcePullImage
         )
       case (EngineType.Mesos, None, Some(appc)) =>
@@ -156,7 +156,7 @@ trait ContainerConversion extends HealthCheckConversion with VolumeConversion wi
 
   implicit val dockerProtoToRamlWriter: Writes[Protos.ExtendedContainerInfo.DockerInfo, DockerContainer] = Writes { docker =>
     DockerContainer(
-      credential = DockerContainer.DefaultCredential, // we don't store credentials in protobuf
+      config = DockerContainer.DefaultConfig, // we don't store config in protobuf
       forcePullImage = docker.when(_.hasForcePullImage, _.getForcePullImage).getOrElse(DockerContainer.DefaultForcePullImage),
       image = docker.getImage,
       network = docker.when(_.hasOBSOLETENetwork, _.getOBSOLETENetwork.toRaml).orElse(DockerContainer.DefaultNetwork),
@@ -167,16 +167,17 @@ trait ContainerConversion extends HealthCheckConversion with VolumeConversion wi
     )
   }
 
-  implicit val dockerCredentialsProtoRamlWriter: Writes[Mesos.Credential, DockerCredentials] = Writes { cred =>
-    DockerCredentials(
-      principal = cred.getPrincipal,
-      secret = cred.when(_.hasSecret, _.getSecret).orElse(DockerCredentials.DefaultSecret)
-    )
+  implicit val dockerConfigProtoRamlWriter: Writes[Mesos.Secret, String] = Writes { secret =>
+    secret.getType match {
+      case Mesos.Secret.Type.VALUE => secret.getValue.getData.toString("UTF-8")
+      case Mesos.Secret.Type.REFERENCE => secret.getReference.getName
+      case Mesos.Secret.Type.UNKNOWN => ""
+    }
   }
 
   implicit val mesosDockerProtoToRamlWriter: Writes[Protos.ExtendedContainerInfo.MesosDockerInfo, DockerContainer] = Writes { docker =>
     DockerContainer(
-      credential = docker.when(_.hasCredential, _.getCredential.toRaml).orElse(DockerContainer.DefaultCredential),
+      config = docker.when(_.hasConfig, _.getConfig.toRaml).orElse(DockerContainer.DefaultConfig),
       forcePullImage = docker.when(_.hasForcePullImage, _.getForcePullImage).getOrElse(DockerContainer.DefaultForcePullImage),
       image = docker.getImage
     // was never stored for mesos containers:
