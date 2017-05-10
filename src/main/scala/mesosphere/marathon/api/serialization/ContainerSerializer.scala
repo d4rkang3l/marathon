@@ -313,26 +313,26 @@ object ParameterSerializer {
 }
 
 object DockerConfigSerializer {
-  def fromMesos(secret: mesos.Protos.Secret): Container.DockerConfig = {
+  def fromMesos(secret: mesos.Protos.Secret): Option[Container.DockerConfig] = {
     if (secret.hasType) {
       secret.getType match {
         case mesos.Protos.Secret.Type.VALUE =>
           if (secret.hasValue) {
-            Container.DockerConfig(secret.getValue.getData.toStringUtf8)
+            Some(Container.DockerConfig(secret.getValue.getData.toStringUtf8))
           } else {
-            Container.DockerConfig("")
+            None
           }
         case mesos.Protos.Secret.Type.REFERENCE =>
           if (secret.hasReference) {
-            Container.DockerConfig(secret.getReference.getName)
+            Some(Container.DockerConfig(secret.getReference.getName))
           } else {
-            Container.DockerConfig("")
+            None
           }
         case mesos.Protos.Secret.Type.UNKNOWN =>
-          Container.DockerConfig("")
+          None
       }
     } else {
-      Container.DockerConfig("")
+      None
     }
   }
 
@@ -369,7 +369,7 @@ object MesosDockerSerializer {
       volumes = proto.getVolumesList.map(Volume(_))(collection.breakOut),
       portMappings = pms.map(PortMappingSerializer.fromProto)(collection.breakOut),
       image = d.getImage,
-      config = if (d.hasConfig) Some(DockerConfigSerializer.fromMesos(d.getConfig)) else None,
+      config = if (d.hasConfig) DockerConfigSerializer.fromMesos(d.getConfig) else None,
       forcePullImage = if (d.hasForcePullImage) d.getForcePullImage else false
     )
   }
