@@ -155,7 +155,7 @@
             },
             "config": {
               "type": "string",
-              "description": "Docker config.json. It must be provided either inline or as a reference into DC/OS EE Secret Store."
+              "description": "Docker config.json. It must be provided either inline or as a reference into a Secret Store."
             },
             "forcePullImage": {
               "type": "boolean",

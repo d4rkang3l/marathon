@@ -114,11 +114,12 @@ types:
         description: |
           The credentials to fetch this container.
           Please note: this property is supported only with the Mesos containerizer, not the docker containerizer.
+        (pragma.deprecated): Deprecated in favor of config
       config?:
         type: string
         minLength: 1
         description: |
-          Docker config.json. It must be provided either inline or as a reference into DC/OS EE Secret Store.
+          Docker config.json. It must be provided either inline or as a reference into a Secret Store.
       forcePullImage?:
         type: boolean
         description: |
