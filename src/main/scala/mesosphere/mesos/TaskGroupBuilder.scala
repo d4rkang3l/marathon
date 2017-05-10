@@ -1,5 +1,8 @@
 package mesosphere.mesos
 
+import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.google.protobuf.ByteString
 import com.typesafe.scalalogging.StrictLogging
 import mesosphere.marathon.core.health.{ MesosCommandHealthCheck, MesosHealthCheck }
 import mesosphere.marathon.core.instance.Instance
@@ -344,9 +347,36 @@ object TaskGroupBuilder extends StrictLogging {
 
       im.kind match {
         case raml.ImageType.Docker =>
-          val docker = mesos.Image.Docker.newBuilder.setName(im.id)
+          val docker = mesos.Image.Docker.newBuilder
+            .setName(im.id)
+
+          im.config.foreach { c =>
+            val isValue = try {
+              val mapper = new ObjectMapper
+              val tree = mapper.readTree(c)
+              tree.isObject
+            } catch {
+              case _: JsonParseException => true
+            }
+
+            val dockerConfig = mesos.Secret.newBuilder
+            if (isValue) {
+              dockerConfig.setType(mesos.Secret.Type.VALUE)
+              val valueBuilder = mesos.Secret.Value.newBuilder
+              valueBuilder.setData(ByteString.copyFromUtf8(c))
+              dockerConfig.setValue(valueBuilder.build)
+            } else {
+              dockerConfig.setType(mesos.Secret.Type.REFERENCE)
+              val referenceBuilder = mesos.Secret.Reference.newBuilder
+              referenceBuilder.setName(c)
+              dockerConfig.setReference(referenceBuilder.build)
+            }
+
+            docker.setConfig(dockerConfig)
+          }
 
           image.setType(mesos.Image.Type.DOCKER).setDocker(docker)
+
         case raml.ImageType.Appc =>
           val appcLabels = (LinuxAmd64 ++ im.labels).toMesosLabels
           val appc = mesos.Image.Appc.newBuilder.setName(im.id).setLabels(appcLabels)

@@ -316,19 +316,11 @@ object DockerConfigSerializer {
   def fromMesos(secret: mesos.Protos.Secret): Option[Container.DockerConfig] = {
     if (secret.hasType) {
       secret.getType match {
-        case mesos.Protos.Secret.Type.VALUE =>
-          if (secret.hasValue) {
-            Some(Container.DockerConfig(secret.getValue.getData.toStringUtf8))
-          } else {
-            None
-          }
-        case mesos.Protos.Secret.Type.REFERENCE =>
-          if (secret.hasReference) {
-            Some(Container.DockerConfig(secret.getReference.getName))
-          } else {
-            None
-          }
-        case mesos.Protos.Secret.Type.UNKNOWN =>
+        case mesos.Protos.Secret.Type.VALUE if secret.hasValue =>
+          Some(Container.DockerConfig(secret.getValue.getData.toStringUtf8))
+        case mesos.Protos.Secret.Type.REFERENCE if secret.hasReference =>
+          Some(Container.DockerConfig(secret.getReference.getName))
+        case _ =>
           None
       }
     } else {
