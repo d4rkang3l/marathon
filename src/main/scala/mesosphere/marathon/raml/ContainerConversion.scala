@@ -51,6 +51,10 @@ trait ContainerConversion extends HealthCheckConversion with VolumeConversion wi
 
   implicit val containerWrites: Writes[state.Container, Container] = Writes { container =>
 
+    implicit val credentialWrites: Writes[state.Container.Credential, DockerCredentials] = Writes { credentials =>
+      DockerCredentials(credentials.principal, credentials.secret)
+    }
+
     implicit val configWrites: Writes[state.Container.DockerConfig, String] = Writes { config =>
       config.value
     }
@@ -66,6 +70,7 @@ trait ContainerConversion extends HealthCheckConversion with VolumeConversion wi
     implicit val mesosDockerContainerWrites: Writes[state.Container.MesosDocker, DockerContainer] = Writes { container =>
       DockerContainer(
         image = container.image,
+        credential = container.credential.toRaml,
         config = container.config.map(c => c.value),
         forcePullImage = container.forcePullImage)
     }
@@ -107,6 +112,7 @@ trait ContainerConversion extends HealthCheckConversion with VolumeConversion wi
           volumes = volumes,
           image = docker.image,
           portMappings = portMappings, // assumed already normalized, see AppNormalization
+          credential = docker.credential.map(c => state.Container.Credential(principal = c.principal, secret = c.secret)),
           config = docker.config.map(value => state.Container.DockerConfig(value)),
           forcePullImage = docker.forcePullImage
         )
@@ -156,6 +162,7 @@ trait ContainerConversion extends HealthCheckConversion with VolumeConversion wi
 
   implicit val dockerProtoToRamlWriter: Writes[Protos.ExtendedContainerInfo.DockerInfo, DockerContainer] = Writes { docker =>
     DockerContainer(
+      credential = DockerContainer.DefaultCredential, // we don't store credentials in protobuf
       config = DockerContainer.DefaultConfig, // we don't store config in protobuf
       forcePullImage = docker.when(_.hasForcePullImage, _.getForcePullImage).getOrElse(DockerContainer.DefaultForcePullImage),
       image = docker.getImage,
@@ -164,6 +171,13 @@ trait ContainerConversion extends HealthCheckConversion with VolumeConversion wi
       portMappings = Option.empty[Seq[ContainerPortMapping]].unless(
         docker.when(_.getOBSOLETENetwork != Mesos.ContainerInfo.DockerInfo.Network.HOST, _.getOBSOLETEPortMappingsList.map(_.toRaml)(collection.breakOut))),
       privileged = docker.when(_.hasPrivileged, _.getPrivileged).getOrElse(DockerContainer.DefaultPrivileged)
+    )
+  }
+
+  implicit val dockerCredentialsProtoRamlWriter: Writes[Mesos.Credential, DockerCredentials] = Writes { cred =>
+    DockerCredentials(
+      principal = cred.getPrincipal,
+      secret = cred.when(_.hasSecret, _.getSecret).orElse(DockerCredentials.DefaultSecret)
     )
   }
 
@@ -177,6 +191,7 @@ trait ContainerConversion extends HealthCheckConversion with VolumeConversion wi
 
   implicit val mesosDockerProtoToRamlWriter: Writes[Protos.ExtendedContainerInfo.MesosDockerInfo, DockerContainer] = Writes { docker =>
     DockerContainer(
+      credential = docker.when(_.hasCredential, _.getCredential.toRaml).orElse(DockerContainer.DefaultCredential),
       config = docker.when(_.hasConfig, _.getConfig.toRaml).orElse(DockerContainer.DefaultConfig),
       forcePullImage = docker.when(_.hasForcePullImage, _.getForcePullImage).getOrElse(DockerContainer.DefaultForcePullImage),
       image = docker.getImage

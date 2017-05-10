@@ -94,13 +94,16 @@ trait AppValidation {
   val validOldContainerAPI: Validator[Container] = new Validator[Container] {
 
     val forDockerContainerizer: Validator[Container] = {
-      val oldMesosDockerContainerAPI: Validator[DockerContainer] = validator[DockerContainer](_ => ())
+      val oldDockerDockerContainerAPI: Validator[DockerContainer] = validator[DockerContainer] { docker =>
+        docker.credential is empty // credentials aren't supported this way anymore
+      }
       validator[Container] { container =>
-        container.docker is optional(valid(oldMesosDockerContainerAPI))
+        container.docker is optional(valid(oldDockerDockerContainerAPI))
       }
     }
     val forMesosContainerizer: Validator[Container] = {
       val oldMesosDockerContainerAPI: Validator[DockerContainer] = validator[DockerContainer] { docker =>
+        docker.credential is empty // credentials aren't supported this way anymore
         docker.network is empty
         docker.parameters is empty
         docker.portMappings is empty
