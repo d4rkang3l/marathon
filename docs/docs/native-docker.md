@@ -9,15 +9,15 @@ Marathon supports Docker and Appc container images by either one of two runtimes
 Marathon enables users to run Docker container images with two different runtimes:
 
   1. [Docker containerizer](# Docker Containerizer) using the native Docker Engine as runtime.
-  2. Mesos containerizer using the Universal Container Runtime.  
+  2. Mesos containerizer using the Universal Container Runtime.
 
-# Docker Containerizer 
+# Docker Containerizer
 
 The Docker containerizer relies on the external Docker engine runtime to provision the containers.
 
 ## Configuration
 
-DC/OS clusters are already configured to run Docker containers, so 
+DC/OS clusters are already configured to run Docker containers, so
 DC/OS users do not need to follow the configuration steps below.
 
 #### Prerequisites
@@ -28,13 +28,13 @@ DC/OS users do not need to follow the configuration steps below.
 
   <div class="alert alert-info">
     <strong>Note:</strong> All commands below assume the Mesos agent process is being run
-    as a service using the package provided by 
+    as a service using the package provided by
     <a href="http://mesosphere.com/2014/07/17/mesosphere-package-repositories/">Mesosphere</a>
   </div>
 
 1. Update your agent node configuration to specify the use of the Docker containerizer
   <div class="alert alert-info">
-    <strong>Note:</strong> The order of the parameters to `containerizers` is important. 
+    <strong>Note:</strong> The order of the parameters to `containerizers` is important.
     It specifies the priority used when choosing the containerizer to launch
     the task.
   </div>
@@ -54,7 +54,7 @@ DC/OS users do not need to follow the configuration steps below.
 #### Configure Marathon
 
 1. Increase the Marathon [command line option]({{ site.baseurl }}/docs/command-line-flags.html)
-`--task_launch_timeout` to at least the executor timeout, in milliseconds, 
+`--task_launch_timeout` to at least the executor timeout, in milliseconds,
 you set on your agent nodes in the previous step.
 
 
@@ -228,7 +228,7 @@ and execute `echo hello`:
 
 ```json
 {
-    "id": "inky", 
+    "id": "inky",
     "container": {
         "docker": {
             "image": "mesosphere/inky"
@@ -293,8 +293,9 @@ the future, as Mesos may not always interact with Docker via the CLI.
 
 ## Configuration
 
-Selected this setup by specifying the follow JSON combination, which previously provoked an error message:
-container type "MESOS" and a "docker" object.
+Selected this setup by specifying the follow JSON combination, which
+previously provoked an error message: container type `MESOS` and a
+`docker` object.
 
 ```json
 {
@@ -311,11 +312,42 @@ container type "MESOS" and a "docker" object.
     "instances": 1
 }
 ```
-The Mesos containerizer does not support the same parameter options as the Docker containerizer yet.
-The only properties recognized by both containerizers are "image" and "forcePullImage",
-with the same semantics. All other Docker container properties result in an error with the Mesos containerizer.
 
-However, the latest version of the Mesos containerizer introduces its own new property, "credential", with a "principal" and an optional "secret" field to authenticate when downloading the Docker image.
+The Mesos containerizer does not support the same parameter options as
+the Docker containerizer yet.  The only properties recognized by both
+containerizers are `image` and `forcePullImage`, with the same
+semantics. All other Docker container properties result in an error
+with the Mesos containerizer.
+
+Starting with Marathon v1.5, Mesos containerizer supports
+`container.docker.config` property, which might be used to specify a
+Docker `config.json` per Docker image. Its value must be either
+content of `config.json` file, or a secret name, the corresponding
+value of which is content of `config.json`.
+
+```json
+{
+    "id": "mesos-docker",
+    "container": {
+        "docker": {
+            "image": "mesosphere/inky",
+            "config": "{ \"auths\": { \"https://index.docker.io/v1/\": { \"auth\": \"amRvZTpwYXNzd2QK\" } } }"
+        },
+        "type": "MESOS"
+    },
+    "args": ["hello"],
+    "cpus": 0.2,
+    "mem": 16.0,
+    "instances": 1
+}
+```
+
+The value of `auths.[server].auth` is an output of base64-encoded
+`username:password` pair for a respective `server`.
+
+Another way (although deprecated in Marathon v1.5) to achieve the
+same, is to use a `credential` object, with a mandatory `principal`
+and an optional `secret` properties:
 
 ```json
 {
@@ -340,5 +372,4 @@ However, the latest version of the Mesos containerizer introduces its own new pr
 ## Resources
 
 - [Mesos Docker Containerizer](http://mesos.apache.org/documentation/latest/docker-containerizer)
-- [Supporting Container Images in Mesos Containerizer]
-  (https://github.com/apache/mesos/blob/master/docs/container-image.md)
+- [Supporting Container Images in Mesos Containerizer](https://github.com/apache/mesos/blob/master/docs/container-image.md)
