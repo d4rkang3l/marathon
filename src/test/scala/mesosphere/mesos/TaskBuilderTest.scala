@@ -630,6 +630,7 @@ class TaskBuilderTest extends UnitTest {
         .build
 
       val configText = "{ \"auths\": { \"hub.docker.com\": { \"auth\": \"amRvZToxMjM0NQo=\" } } }"
+      val config = Container.DockerConfigText(configText)
       val task: Option[(MesosProtos.TaskInfo, _)] = buildIfMatches(
         offer, AppDefinition(
         id = "/testApp".toPath,
@@ -641,7 +642,7 @@ class TaskBuilderTest extends UnitTest {
             principal = "aPrincipal",
             secret = Some("aSecret")
           )),
-          config = Some(Container.DockerConfigText(configText))
+          config = Some(config)
         )),
         portDefinitions = Seq.empty,
         networks = Seq(ContainerNetwork("vnet"))

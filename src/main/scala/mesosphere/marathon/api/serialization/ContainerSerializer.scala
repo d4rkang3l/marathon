@@ -1,7 +1,6 @@
 package mesosphere.marathon
 package api.serialization
 
-import com.google.protobuf.ByteString
 import mesosphere.marathon.core.externalvolume.ExternalVolumes
 import mesosphere.marathon.core.pod.{ BridgeNetwork, ContainerNetwork, HostNetwork, Network }
 import mesosphere.marathon.state.Container.PortMapping
@@ -333,25 +332,15 @@ object DockerConfigSerializer {
         secret.when(_.hasReference, _.getReference.getName).map(Container.DockerConfigSecret)
       case mesos.Protos.Secret.Type.VALUE =>
         secret.when(_.hasValue, _.getValue.getData.toStringUtf8).map(Container.DockerConfigText)
+      case _ => None
     }
   }
 
   def toMesos(config: Container.DockerConfig): mesos.Protos.Secret = config match {
     case Container.DockerConfigSecret(secret) =>
-      val builder = mesos.Protos.Secret.newBuilder
-      builder.setType(mesos.Protos.Secret.Type.REFERENCE)
-      val referenceBuilder = mesos.Protos.Secret.Reference.newBuilder
-      referenceBuilder.setName(secret)
-      builder.setReference(referenceBuilder)
-      builder.build
-
+      mesosphere.mesos.Secret.toSecretReference(secret)
     case Container.DockerConfigText(text) =>
-      val builder = mesos.Protos.Secret.newBuilder
-      builder.setType(mesos.Protos.Secret.Type.VALUE)
-      val valueBuilder = mesos.Protos.Secret.Value.newBuilder
-      valueBuilder.setData(ByteString.copyFromUtf8(text))
-      builder.setValue(valueBuilder)
-      builder.build
+      mesosphere.mesos.Secret.toSecretValue(text)
   }
 }
 

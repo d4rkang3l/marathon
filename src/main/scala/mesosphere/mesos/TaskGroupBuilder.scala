@@ -1,6 +1,5 @@
 package mesosphere.mesos
 
-import com.google.protobuf.ByteString
 import com.typesafe.scalalogging.StrictLogging
 import mesosphere.marathon.core.health.{ MesosCommandHealthCheck, MesosHealthCheck }
 import mesosphere.marathon.core.instance.Instance
@@ -338,24 +337,6 @@ object TaskGroupBuilder extends StrictLogging {
       }
     }
 
-    def toSecretReference(secret: String): mesos.Secret = {
-      val builder = mesos.Secret.newBuilder
-      builder.setType(mesos.Secret.Type.REFERENCE)
-      val referenceBuilder = mesos.Secret.Reference.newBuilder
-      referenceBuilder.setName(secret)
-      builder.setReference(referenceBuilder)
-      builder.build
-    }
-
-    def toSecretValue(text: String): mesos.Secret = {
-      val builder = mesos.Secret.newBuilder
-      builder.setType(mesos.Secret.Type.VALUE)
-      val valueBuilder = mesos.Secret.Value.newBuilder
-      valueBuilder.setData(ByteString.copyFromUtf8(text))
-      builder.setValue(valueBuilder)
-      builder.build
-    }
-
     container.image.foreach { im =>
       val image = mesos.Image.newBuilder
 
@@ -367,8 +348,12 @@ object TaskGroupBuilder extends StrictLogging {
             .setName(im.id)
 
           im.config.foreach {
-            case DockerConfigSecret(secret) => docker.setConfig(toSecretReference(secret))
-            case DockerConfigText(text) => docker.setConfig(toSecretValue(text))
+            case DockerConfigSecret(secret) =>
+              val secretProto = mesosphere.mesos.Secret.toSecretReference(secret)
+              docker.setConfig(secretProto)
+            case DockerConfigText(text) =>
+              val valueProto = mesosphere.mesos.Secret.toSecretValue(text)
+              docker.setConfig(valueProto)
           }
 
           image.setType(mesos.Image.Type.DOCKER).setDocker(docker)
