@@ -321,9 +321,10 @@ with the Mesos containerizer.
 
 Starting with Marathon v1.5, Mesos containerizer supports
 `container.docker.config` property, which might be used to specify a
-Docker `config.json` per Docker image. Its value must be either
-content of `config.json` file, or a secret name, the corresponding
-value of which is content of `config.json`.
+Docker `config.json` per Docker image. Either its `text` propert might
+be set to content of `config.json` file, or its `secret` property
+might be set to a secret name, the corresponding value of which is
+content of `config.json`.
 
 ```json
 {
@@ -331,7 +332,9 @@ value of which is content of `config.json`.
     "container": {
         "docker": {
             "image": "mesosphere/inky",
-            "config": "{ \"auths\": { \"https://index.docker.io/v1/\": { \"auth\": \"amRvZTpwYXNzd2QK\" } } }"
+            "config": {
+              "text": "{ \"auths\": { \"https://index.docker.io/v1/\": { \"auth\": \"amRvZTpwYXNzd2QK\" } } }"
+            }
         },
         "type": "MESOS"
     },

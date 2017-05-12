@@ -11,6 +11,7 @@ uses:
   strings: stringTypes.raml
   volumes: volumes.raml
   containerCommons: containerCommons.raml
+  docker: docker.raml
 
 types:
   ImageType:
@@ -25,10 +26,11 @@ types:
         description: address/identifier of the file system image
         example: mesosphere/marathon:1.3.0
       config?:
-        type: string
-        minLength: 1
+        type: docker.DockerConfig
         description: |
-          Docker config.json. It must be provided either inline or as a reference into DC/OS EE Secret Store.
+          Docker config.json. It must be provided either as `text`
+          property set to a stringified JSON object or as `secret`
+          property set to a string reference into a Secret Store.
       forcePull?:
         type: boolean
         description: true if the image should always be pulled

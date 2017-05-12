@@ -1,0 +1,27 @@
+#%RAML 1.0 Library
+types:
+  DockerConfigSecret:
+    type: object
+    properties:
+      secret:
+        type: string
+        minLength: 1
+        required: true
+    description: |
+      Docker config.json represented as a value in a secret store,
+      which corresonds to the given secret name.
+  DockerConfigText:
+    type: object
+    properties:
+      text:
+        type: string
+        minLength: 1
+        required: true
+    description: |
+      Docker config.json represented as a stringified JSON object.
+  DockerConfig:
+    type: DockerConfigSecret | DockerConfigText
+    description: |
+      Docker config.json. It must be provided either as `text`
+      property set to a stringified JSON object or as `secret`
+      property set to a string reference into a Secret Store.

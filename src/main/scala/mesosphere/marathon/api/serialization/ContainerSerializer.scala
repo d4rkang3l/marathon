@@ -1,8 +1,6 @@
 package mesosphere.marathon
 package api.serialization
 
-import com.fasterxml.jackson.core.JsonParseException
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.protobuf.ByteString
 import mesosphere.marathon.core.externalvolume.ExternalVolumes
 import mesosphere.marathon.core.pod.{ BridgeNetwork, ContainerNetwork, HostNetwork, Network }
@@ -330,42 +328,30 @@ object CredentialSerializer {
 
 object DockerConfigSerializer {
   def fromMesos(secret: mesos.Protos.Secret): Option[Container.DockerConfig] = {
-    if (secret.hasType) {
-      secret.getType match {
-        case mesos.Protos.Secret.Type.VALUE if secret.hasValue =>
-          Some(Container.DockerConfig(secret.getValue.getData.toStringUtf8))
-        case mesos.Protos.Secret.Type.REFERENCE if secret.hasReference =>
-          Some(Container.DockerConfig(secret.getReference.getName))
-        case _ =>
-          None
-      }
-    } else {
-      None
+    secret.when(_.hasType, _.getType).flatMap {
+      case mesos.Protos.Secret.Type.REFERENCE =>
+        secret.when(_.hasReference, _.getReference.getName).map(Container.DockerConfigSecret)
+      case mesos.Protos.Secret.Type.VALUE =>
+        secret.when(_.hasValue, _.getValue.getData.toStringUtf8).map(Container.DockerConfigText)
     }
   }
 
-  def toMesos(config: Container.DockerConfig): mesos.Protos.Secret = {
-    val isValue = try {
-      val mapper = new ObjectMapper
-      val tree = mapper.readTree(config.value)
-      tree.isObject
-    } catch {
-      case _: JsonParseException => true
-    }
-
-    val builder = mesos.Protos.Secret.newBuilder
-    if (isValue) {
-      builder.setType(mesos.Protos.Secret.Type.VALUE)
-      val valueBuilder = mesos.Protos.Secret.Value.newBuilder
-      valueBuilder.setData(ByteString.copyFromUtf8(config.value))
-      builder.setValue(valueBuilder.build)
-    } else {
+  def toMesos(config: Container.DockerConfig): mesos.Protos.Secret = config match {
+    case Container.DockerConfigSecret(secret) =>
+      val builder = mesos.Protos.Secret.newBuilder
       builder.setType(mesos.Protos.Secret.Type.REFERENCE)
       val referenceBuilder = mesos.Protos.Secret.Reference.newBuilder
-      referenceBuilder.setName(config.value)
-      builder.setReference(referenceBuilder.build)
-    }
-    builder.build
+      referenceBuilder.setName(secret)
+      builder.setReference(referenceBuilder)
+      builder.build
+
+    case Container.DockerConfigText(text) =>
+      val builder = mesos.Protos.Secret.newBuilder
+      builder.setType(mesos.Protos.Secret.Type.VALUE)
+      val valueBuilder = mesos.Protos.Secret.Value.newBuilder
+      valueBuilder.setData(ByteString.copyFromUtf8(text))
+      builder.setValue(valueBuilder)
+      builder.build
   }
 }
 

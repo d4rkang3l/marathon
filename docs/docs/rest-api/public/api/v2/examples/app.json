@@ -25,7 +25,9 @@
     "docker": {
       "forcePullImage": false,
       "image": "mesosphere:marathon/latest",
-      "config": "{ \"auths\": { \"hub.docker.com\": { \"auth\": \"amRvZToxMjM0NQo=\" } } }",
+      "config": {
+        "text": "{ \"auths\": { \"https://index.docker.io/v1/\": { \"auth\": \"amRvZToxMjM0NQo=\" } } }"
+      },
       "network": "BRIDGE",
       "parameters": [
         {

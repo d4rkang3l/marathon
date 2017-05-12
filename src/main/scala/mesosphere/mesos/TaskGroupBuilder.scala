@@ -1,7 +1,5 @@
 package mesosphere.mesos
 
-import com.fasterxml.jackson.core.JsonParseException
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.protobuf.ByteString
 import com.typesafe.scalalogging.StrictLogging
 import mesosphere.marathon.core.health.{ MesosCommandHealthCheck, MesosHealthCheck }
@@ -10,7 +8,7 @@ import mesosphere.marathon.core.pod._
 import mesosphere.marathon.core.task.Task
 import mesosphere.marathon.plugin.task.RunSpecTaskProcessor
 import mesosphere.marathon.raml
-import mesosphere.marathon.raml.Endpoint
+import mesosphere.marathon.raml.{ DockerConfigSecret, DockerConfigText, Endpoint }
 import mesosphere.marathon.state.{ EnvVarString, PathId, PortAssignment, Timestamp }
 import mesosphere.marathon.stream.Implicits._
 import mesosphere.marathon.tasks.PortsMatch
@@ -340,6 +338,24 @@ object TaskGroupBuilder extends StrictLogging {
       }
     }
 
+    def toSecretReference(secret: String): mesos.Secret = {
+      val builder = mesos.Secret.newBuilder
+      builder.setType(mesos.Secret.Type.REFERENCE)
+      val referenceBuilder = mesos.Secret.Reference.newBuilder
+      referenceBuilder.setName(secret)
+      builder.setReference(referenceBuilder)
+      builder.build
+    }
+
+    def toSecretValue(text: String): mesos.Secret = {
+      val builder = mesos.Secret.newBuilder
+      builder.setType(mesos.Secret.Type.VALUE)
+      val valueBuilder = mesos.Secret.Value.newBuilder
+      valueBuilder.setData(ByteString.copyFromUtf8(text))
+      builder.setValue(valueBuilder)
+      builder.build
+    }
+
     container.image.foreach { im =>
       val image = mesos.Image.newBuilder
 
@@ -350,29 +366,9 @@ object TaskGroupBuilder extends StrictLogging {
           val docker = mesos.Image.Docker.newBuilder
             .setName(im.id)
 
-          im.config.foreach { c =>
-            val isValue = try {
-              val mapper = new ObjectMapper
-              val tree = mapper.readTree(c)
-              tree.isObject
-            } catch {
-              case _: JsonParseException => true
-            }
-
-            val dockerConfig = mesos.Secret.newBuilder
-            if (isValue) {
-              dockerConfig.setType(mesos.Secret.Type.VALUE)
-              val valueBuilder = mesos.Secret.Value.newBuilder
-              valueBuilder.setData(ByteString.copyFromUtf8(c))
-              dockerConfig.setValue(valueBuilder.build)
-            } else {
-              dockerConfig.setType(mesos.Secret.Type.REFERENCE)
-              val referenceBuilder = mesos.Secret.Reference.newBuilder
-              referenceBuilder.setName(c)
-              dockerConfig.setReference(referenceBuilder.build)
-            }
-
-            docker.setConfig(dockerConfig)
+          im.config.foreach {
+            case DockerConfigSecret(secret) => docker.setConfig(toSecretReference(secret))
+            case DockerConfigText(text) => docker.setConfig(toSecretValue(text))
           }
 
           image.setType(mesos.Image.Type.DOCKER).setDocker(docker)

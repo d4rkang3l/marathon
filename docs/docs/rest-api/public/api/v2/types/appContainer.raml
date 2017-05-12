@@ -5,6 +5,7 @@ uses:
   volumes: volumes.raml
   strings: stringTypes.raml
   pragma: pragma.raml
+  docker: docker.raml
 
 types:
   EngineType:
@@ -116,10 +117,11 @@ types:
           Please note: this property is supported only with the Mesos containerizer, not the docker containerizer.
         (pragma.deprecated): Deprecated in favor of config
       config?:
-        type: string
-        minLength: 1
+        type: docker.DockerConfig
         description: |
-          Docker config.json. It must be provided either inline or as a reference into a Secret Store.
+          Docker config.json. It must be provided either as `text`
+          property set to a stringified JSON object or as `secret`
+          property set to a string reference into a Secret Store.
       forcePullImage?:
         type: boolean
         description: |

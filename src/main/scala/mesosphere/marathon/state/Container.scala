@@ -94,7 +94,9 @@ object Container {
     principal: String,
     secret: Option[String] = None)
 
-  case class DockerConfig(value: String)
+  class DockerConfig
+  case class DockerConfigSecret(secret: String) extends DockerConfig
+  case class DockerConfigText(text: String) extends DockerConfig
 
   case class MesosDocker(
       volumes: Seq[Volume] = Seq.empty,
