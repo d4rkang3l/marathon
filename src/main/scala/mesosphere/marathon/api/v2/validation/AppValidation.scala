@@ -52,6 +52,9 @@ trait AppValidation {
   def dockerDockerContainerValidator(networks: Seq[Network]): Validator[Container] = {
     val validDockerEngineSpec: Validator[DockerContainer] = validator[DockerContainer] { docker =>
       docker.image is notEmpty
+      docker.config is isTrue("config is not supported with Docker containerizer") { config =>
+        config == None
+      }
       docker.portMappings is valid(optional(portMappingsValidator(networks)))
     }
     validator { (container: Container) =>
@@ -63,7 +66,7 @@ trait AppValidation {
     val validMesosEngineSpec: Validator[DockerContainer] = validator[DockerContainer] { docker =>
       docker.image is notEmpty
     }
-    validator{ (container: Container) =>
+    validator { (container: Container) =>
       container.docker is valid(definedAnd(validMesosEngineSpec))
     }
   }

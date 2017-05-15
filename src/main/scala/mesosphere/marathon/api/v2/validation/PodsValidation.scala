@@ -116,6 +116,11 @@ trait PodsValidation {
 
   val imageValidator = validator[Image] { image =>
     image.id.length is between(1, 1024)
+    if (image.kind != ImageType.Docker) {
+      image.config is isTrue("config is supported only with Docker images") { config =>
+        config == None
+      }
+    }
   }
 
   def volumeMountValidator(volumes: Seq[Volume]): Validator[VolumeMount] = validator[VolumeMount] { volumeMount => // linter:ignore:UnusedParameter
