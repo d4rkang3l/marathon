@@ -629,8 +629,8 @@ class TaskBuilderTest extends UnitTest {
         .addResources(RangesResource(Resource.PORTS, Seq(protos.Range(33000, 34000)), "marathon"))
         .build
 
-      val configText = "{ \"auths\": { \"hub.docker.com\": { \"auth\": \"amRvZToxMjM0NQo=\" } } }"
-      val config = Container.DockerConfigText(configText)
+      val dockerConfigSecret = "aConfigSecret"
+      val dockerConfig = Container.DockerConfig(dockerConfigSecret)
       val task: Option[(MesosProtos.TaskInfo, _)] = buildIfMatches(
         offer, AppDefinition(
         id = "/testApp".toPath,
@@ -642,7 +642,7 @@ class TaskBuilderTest extends UnitTest {
             principal = "aPrincipal",
             secret = Some("aSecret")
           )),
-          config = Some(config)
+          config = Some(dockerConfig)
         )),
         portDefinitions = Seq.empty,
         networks = Seq(ContainerNetwork("vnet"))
@@ -661,7 +661,7 @@ class TaskBuilderTest extends UnitTest {
       taskInfo.getContainer.getMesos.getImage.getDocker.getCredential.hasSecret should be (true)
       taskInfo.getContainer.getMesos.getImage.getDocker.getCredential.getSecret should be ("aSecret")
       taskInfo.getContainer.getMesos.getImage.getDocker.hasConfig should be (true)
-      taskInfo.getContainer.getMesos.getImage.getDocker.getConfig.getValue.getData.toStringUtf8() should be (configText)
+      taskInfo.getContainer.getMesos.getImage.getDocker.getConfig.getReference.getName should be (dockerConfigSecret)
     }
 
     "build creates task for MESOS AppC container" in {

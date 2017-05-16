@@ -56,8 +56,7 @@ trait ContainerConversion extends HealthCheckConversion with VolumeConversion wi
     }
 
     implicit val configWrites: Writes[state.Container.DockerConfig, DockerConfig] = Writes {
-      case state.Container.DockerConfigSecret(secret) => DockerConfigSecret(secret)
-      case state.Container.DockerConfigText(text) => DockerConfigText(text)
+      case state.Container.DockerConfig(secret) => DockerConfig(SecretDef(secret))
     }
 
     implicit val dockerDockerContainerWrites: Writes[state.Container.Docker, DockerContainer] = Writes { container =>
@@ -95,8 +94,7 @@ trait ContainerConversion extends HealthCheckConversion with VolumeConversion wi
   }
 
   implicit val configReads: Reads[DockerConfig, state.Container.DockerConfig] = Reads {
-    case DockerConfigSecret(secret) => state.Container.DockerConfigSecret(secret)
-    case DockerConfigText(text) => state.Container.DockerConfigText(text)
+    case DockerConfig(secret) => state.Container.DockerConfig(secret.source)
   }
 
   implicit val appContainerRamlReader: Reads[Container, state.Container] = Reads { container =>
@@ -169,7 +167,7 @@ trait ContainerConversion extends HealthCheckConversion with VolumeConversion wi
   implicit val dockerProtoToRamlWriter: Writes[Protos.ExtendedContainerInfo.DockerInfo, DockerContainer] = Writes { docker =>
     DockerContainer(
       credential = DockerContainer.DefaultCredential, // we don't store credentials in protobuf
-      config = DockerContainer.DefaultConfig, // we don't store credentials in protobuf
+      config = DockerContainer.DefaultConfig, // we don't store a Docker config in protobuf
       forcePullImage = docker.when(_.hasForcePullImage, _.getForcePullImage).getOrElse(DockerContainer.DefaultForcePullImage),
       image = docker.getImage,
       network = docker.when(_.hasOBSOLETENetwork, _.getOBSOLETENetwork.toRaml).orElse(DockerContainer.DefaultNetwork),
@@ -188,11 +186,11 @@ trait ContainerConversion extends HealthCheckConversion with VolumeConversion wi
   }
 
   implicit val dockerConfigProtoRamlWriter: Writes[Mesos.Secret, Option[DockerConfig]] = Writes { secret =>
-    secret.getType match {
+    secret.when(_.hasType, _.getType).flatMap {
       case Mesos.Secret.Type.REFERENCE =>
-        secret.when(_.hasReference, _.getReference.getName).map(DockerConfigSecret(_))
-      case Mesos.Secret.Type.VALUE =>
-        secret.when(_.hasValue, _.getValue.getData.toStringUtf8()).map(DockerConfigText(_))
+        secret.when(_.hasReference, _.getReference.getName).map { secret =>
+          DockerConfig(SecretDef(secret))
+        }
       case _ => None
     }
   }

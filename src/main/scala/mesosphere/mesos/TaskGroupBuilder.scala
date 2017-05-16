@@ -7,7 +7,7 @@ import mesosphere.marathon.core.pod._
 import mesosphere.marathon.core.task.Task
 import mesosphere.marathon.plugin.task.RunSpecTaskProcessor
 import mesosphere.marathon.raml
-import mesosphere.marathon.raml.{ DockerConfigSecret, DockerConfigText, Endpoint }
+import mesosphere.marathon.raml.Endpoint
 import mesosphere.marathon.state.{ EnvVarString, PathId, PortAssignment, Timestamp }
 import mesosphere.marathon.stream.Implicits._
 import mesosphere.marathon.tasks.PortsMatch
@@ -346,15 +346,6 @@ object TaskGroupBuilder extends StrictLogging {
         case raml.ImageType.Docker =>
           val docker = mesos.Image.Docker.newBuilder
             .setName(im.id)
-
-          im.config.foreach {
-            case DockerConfigSecret(secret) =>
-              val secretProto = mesosphere.mesos.Secret.toSecretReference(secret)
-              docker.setConfig(secretProto)
-            case DockerConfigText(text) =>
-              val valueProto = mesosphere.mesos.Secret.toSecretValue(text)
-              docker.setConfig(valueProto)
-          }
 
           image.setType(mesos.Image.Type.DOCKER).setDocker(docker)
 

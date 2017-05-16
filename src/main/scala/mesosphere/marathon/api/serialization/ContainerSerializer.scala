@@ -329,18 +329,14 @@ object DockerConfigSerializer {
   def fromMesos(secret: mesos.Protos.Secret): Option[Container.DockerConfig] = {
     secret.when(_.hasType, _.getType).flatMap {
       case mesos.Protos.Secret.Type.REFERENCE =>
-        secret.when(_.hasReference, _.getReference.getName).map(Container.DockerConfigSecret)
-      case mesos.Protos.Secret.Type.VALUE =>
-        secret.when(_.hasValue, _.getValue.getData.toStringUtf8).map(Container.DockerConfigText)
+        secret.when(_.hasReference, _.getReference.getName).map(Container.DockerConfig)
       case _ => None
     }
   }
 
   def toMesos(config: Container.DockerConfig): mesos.Protos.Secret = config match {
-    case Container.DockerConfigSecret(secret) =>
+    case Container.DockerConfig(secret) =>
       mesosphere.mesos.Secret.toSecretReference(secret)
-    case Container.DockerConfigText(text) =>
-      mesosphere.mesos.Secret.toSecretValue(text)
   }
 }
 

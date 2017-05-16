@@ -155,7 +155,21 @@
             },
             "config": {
               "type": "object",
-              "description": "Docker config.json. It must be provided either as `text` property set to a stringified JSON object or as `secret` property set to a string reference into a Secret Store."
+              "description": "Docker's config.json",
+              "additionalProperties": false,
+              "properties": {
+                "secret" : {
+                  "type": "object",
+                  "description": "A secret whose value is a stringified JSON object in a Secret Store.",
+                  "additionalProperties": false,
+                  "properties": {
+                    "source": {
+                      "type": "string",
+                      "description": "A secret name."
+                    }
+                  }
+                }
+              }
             },
             "forcePullImage": {
               "type": "boolean",
