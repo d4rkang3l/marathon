@@ -1011,7 +1011,7 @@ def test_private_repository_docker_app():
     common.assert_app_tasks_running(client, app_def)
 
 
-@pytest.mark.skip(reason="Not yet implemented in mesos")
+@pytest.mark.skipif("docker_env_set()")
 def test_private_repository_mesos_app():
     """ Test private docker registry with mesos containerizer using "credentials" container field.
         Note: Despite of what DC/OS docmentation states this feature is not yet implemented:
@@ -1022,14 +1022,25 @@ def test_private_repository_mesos_app():
     assert 'DOCKER_HUB_USERNAME' in os.environ, "Couldn't find docker hub username. $DOCKER_HUB_USERNAME is not set"
     assert 'DOCKER_HUB_PASSWORD' in os.environ, "Couldn't find docker hub password. $DOCKER_HUB_PASSWORD is not set"
 
-    principal = os.environ['DOCKER_HUB_USERNAME']
-    secret = os.environ['DOCKER_HUB_PASSWORD']
+    username = os.environ['DOCKER_HUB_USERNAME']
+    password = os.environ['DOCKER_HUB_PASSWORD']
 
-    app_def = common.private_mesos_container_app(principal, secret)
-    client.add_app(app_def)
-    shakedown.deployment_wait()
+    secret_name = "/marathon/config/docker"
+    secret_value_json = common.create_docker_config_json(username, password)
 
-    common.assert_app_tasks_running(client, app_def)
+    import json
+    secret_value = json.dumps(secret_value_json)
+
+    common.create_secret(secret_name, secret_value)
+
+    try:
+        app_def = common.private_mesos_container_app(secret_name)
+        client.add_app(app_def)
+        shakedown.deployment_wait()
+
+        common.assert_app_tasks_running(client, app_def)
+    finally:
+        common.delete_secret(secret_name)
 
 
 def test_ping(marathon_service_name):

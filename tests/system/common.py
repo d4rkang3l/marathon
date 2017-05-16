@@ -461,19 +461,20 @@ def private_docker_container_app(docker_credentials_filename='docker.tar.gz'):
     }
 
 
-def private_mesos_container_app(principal, secret):
+def private_mesos_container_app(secret_name):
     return {
         "id": "/private-mesos-app",
         "instances": 1,
         "cpus": 1,
         "mem": 128,
         "container": {
-        "type": 'MESOS',
-        "docker": {
-            "image": "mesosphere/simple-docker-ee:latest",
-            "credential": {
-                "principal": principal,
-                "secret": secret
+            "type": 'MESOS',
+            "docker": {
+                "image": "mesosphere/simple-docker-ee:latest",
+                "config": {
+                    "secret": {
+                        "source": secret_name
+                    }
                 }
             }
         }
@@ -780,6 +781,21 @@ def is_enterprise_cli_package_installed():
     return any(cmd['name'] == 'dcos-enterprise-cli' for cmd in result_json)
 
 
+def create_docker_config_json(username, password):
+    print('Creating a config.json content for dockerhub username {}'.format(username))
+
+    import base64
+    auth_hash = base64.b64encode('{}:{}'.format(username, password).encode()).decode()
+
+    return {
+        "auths": {
+            "https://index.docker.io/v1/": {
+                "auth": auth_hash
+            }
+        }
+    }
+
+
 def create_docker_credentials_file(username, password, file_name='docker.tar.gz'):
     """ Create a docker credentials file. Docker username and password are used to create
         a `{file_name}` with `.docker/config.json` containing the credentials.
@@ -842,6 +858,23 @@ def copy_docker_credentials_file(agents, file_name='docker.tar.gz'):
         os.remove(file_name)
 
 
+def create_secret(secret_name, secret_value):
+    """ Create a secret with a given name and a value.
+        This method uses `dcos security secrets` command and assumes that `dcos-enterprise-cli`
+        package is installed.
+
+        :param secret_name: secret name
+        :type secret_name: str
+        :param secret_value: secret_value
+        :type secret_value: str
+    """
+    # temporarily workaround in order to be able to pass a JSON object as a secret value
+    escaped_secret_value = secret_value.replace('"', '\\"')
+    stdout, stderr, return_code = run_dcos_command(
+        'security secrets create --value="{}" {}'.format(escaped_secret_value, secret_name))
+    assert return_code == 0, "Failed to create a secret: {}".format(secret_name)
+
+
 def has_secret(secret_name):
     """ Returns `True` if the secret with given name exists in the vault.
         This method uses `dcos security secrets` command and assumes that `dcos-enterprise-cli`
@@ -870,7 +903,7 @@ def delete_secret(secret_name):
     assert return_code == 0, "Failed to remove existing secret"
 
 
-def create_secret(secret_name, service_account, strict=False, private_key_filename='private-key.pem'):
+def create_sa_secret(secret_name, service_account, strict=False, private_key_filename='private-key.pem'):
     """ Create a secret with a given private key file for passed service account in the vault. Both
         (service account and secret) should share the same key pair. `{strict}` parameter should be
         `True` when creating a secret in a `strict` secure cluster. Private key file will be removed
