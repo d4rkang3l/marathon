@@ -119,9 +119,8 @@ types:
       config?:
         type: docker.DockerConfig
         description: |
-          Docker config.json. It must be provided either as `text`
-          property set to a stringified JSON object or as `secret`
-          property set to a string reference into a Secret Store.
+          Docker's config.json given as a secret name into a secret store
+          which corresponding value is a content of `~/.docker/config.json`.
       forcePullImage?:
         type: boolean
         description: |

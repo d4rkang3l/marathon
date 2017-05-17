@@ -346,32 +346,8 @@ content of `~/.docker/config.json`.
 }
 ```
 
-The value of `auths.[server].auth` is an output of base64-encoded
-`username:password` pair for a respective `server`.
-
-Another way (although deprecated in Marathon v1.5) to achieve the
-same, is to use a `credential` object, with a mandatory `principal`
-and an optional `secret` properties:
-
-```json
-{
-    "id": "mesos-docker",
-    "container": {
-        "docker": {
-            "image": "mesosphere/inky",
-            "credential": {
-              "principal": "alice",
-              "secret": "wonderland"
-            }
-        },
-        "type": "MESOS"
-    },
-    "args": ["hello"],
-    "cpus": 0.2,
-    "mem": 16.0,
-    "instances": 1
-}
-```
+To learn more about secrets, please refer to
+[Secrets]({{ site.baseurl/docs/secrets.html }})
 
 ## Resources
 
