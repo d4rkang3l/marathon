@@ -1,5 +1,6 @@
 """Marathon pod acceptance tests for DC/OS."""
 
+import common
 import os
 import pytest
 import uuid
@@ -13,7 +14,7 @@ from urllib.parse import urljoin
 from common import (block_port, cluster_info, event_fixture, get_pod_tasks, ip_other_than_mom,
                     pin_pod_to_host, restore_iptables, save_iptables)
 from dcos import marathon, util, http
-from shakedown import dcos_1_9, dcos_version_less_than, private_agents, required_private_agents
+from shakedown import dcos_1_9, dcos_1_10, dcos_version_less_than, private_agents, required_private_agents
 from utils import fixture_dir, get_resource, parse_json
 
 
@@ -35,7 +36,6 @@ def _clear_pods():
         shakedown.deployment_wait()
     except:
         pass
-
 
 def _pods_url(path=""):
     return "v2/pods/" + path
@@ -86,6 +86,58 @@ def test_create_pod():
     shakedown.deployment_wait()
     pod = client.show_pod(pod_id)
     assert pod is not None
+
+
+@pytest.mark.skipif("docker_env_set()")
+@dcos_1_10
+def test_create_pod_with_private_image():
+    assert 'DOCKER_HUB_USERNAME' in os.environ, "Couldn't find docker hub username. $DOCKER_HUB_USERNAME is not set"
+    assert 'DOCKER_HUB_PASSWORD' in os.environ, "Couldn't find docker hub password. $DOCKER_HUB_PASSWORD is not set"
+
+    username = os.environ['DOCKER_HUB_USERNAME']
+    password = os.environ['DOCKER_HUB_PASSWORD']
+
+    secret_name = "/pod/marathon/config/docker"
+    secret_value_json = common.create_docker_config_json(username, password)
+
+    import json
+    secret_value = json.dumps(secret_value_json)
+
+    client = marathon.create_client()
+    common.create_secret(secret_name, secret_value)
+
+    pod_id = "/private-image-pod"
+    pod_json = {
+        "id": pod_id,
+        "scaling": {
+            "kind": "fixed",
+            "instances": 1
+        },
+        "containers": [{
+            "name": "simple-docker",
+            "resources": {
+                "cpus": 1,
+                "mem": 128
+            },
+            "image": {
+                "kind": "DOCKER",
+                "id": "mesosphere/simple-docker-ee:latest",
+                "config": {
+                    "secret": {
+                        "source": secret_name
+                    }
+                }
+            }
+        }]
+    }
+
+    try:
+        client.add_pod(pod_json)
+        shakedown.deployment_wait()
+        pod = client.show_pod(pod_id)
+        assert pod is not None
+    finally:
+        client.delete_secret(secret_name)
 
 
 @dcos_1_9

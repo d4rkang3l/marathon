@@ -1012,25 +1012,23 @@ def test_private_repository_docker_app():
 
 
 @pytest.mark.skipif("docker_env_set()")
+@dcos_1_10
 def test_private_repository_mesos_app():
-    """ Test private docker registry with mesos containerizer using "credentials" container field.
-        Note: Despite of what DC/OS docmentation states this feature is not yet implemented:
-        https://issues.apache.org/jira/browse/MESOS-7088
-    """
+    """ Test private docker registry with mesos containerizer using "config" container's image field."""
 
-    client = marathon.create_client()
     assert 'DOCKER_HUB_USERNAME' in os.environ, "Couldn't find docker hub username. $DOCKER_HUB_USERNAME is not set"
     assert 'DOCKER_HUB_PASSWORD' in os.environ, "Couldn't find docker hub password. $DOCKER_HUB_PASSWORD is not set"
 
     username = os.environ['DOCKER_HUB_USERNAME']
     password = os.environ['DOCKER_HUB_PASSWORD']
 
-    secret_name = "/marathon/config/docker"
+    secret_name = "/app/marathon/config/docker"
     secret_value_json = common.create_docker_config_json(username, password)
 
     import json
     secret_value = json.dumps(secret_value_json)
 
+    client = marathon.create_client()
     common.create_secret(secret_name, secret_value)
 
     try:
