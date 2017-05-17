@@ -16,7 +16,7 @@ import scala.collection.immutable
   * while deploying)
   */
 @IntegrationTest
-class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest with ZookeeperServerTest with MarathonFixture {
+class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest with ZookeeperServerTest with MarathonFixture with HealthCheckEndpoint {
   import PathId._
 
   "Restarting Marathon" when {
