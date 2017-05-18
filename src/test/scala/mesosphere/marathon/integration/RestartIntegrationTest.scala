@@ -58,15 +58,63 @@ class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest w
           timeoutSeconds = 1,
           preserveLastResponse = true)
 
+        Given("a new simple app with 2 instances")
         val appId = f.testBasePath / "app"
-        val create = f.appProxy(appId, versionId = "v1", instances = 2, healthCheck = None)
+        val createApp = f.appProxy(appId, versionId = "v1", instances = 2, healthCheck = None)
 
+        createApp.instances shouldBe 2 withClue (s"There are ${createApp.instances} running instead of 2 for ${appId}")
+
+        val created = f.marathon.createAppV2(createApp)
+        created.code should be (201) withClue (s"Response ${created.code}: ${created.entityString}")
+        f.waitForDeployment(created)
+
+        When("updating the app")
         val plan = "phase(block1)"
-        val update = raml.AppUpdate(
+        val updateApp = raml.AppUpdate(
           cmd = Some(s"""${serviceMockScript(f)} '$plan'"""),
           portDefinitions = Some(immutable.Seq(raml.PortDefinition(name = Some("http")))),
           readinessChecks = Some(Seq(readinessCheck)))
-        testDeployments(server, f, appId, create, update)
+        val appV2 = f.marathon.updateApp(appId, updateApp)
+
+        And("new tasks are started and running")
+        val updated = f.waitForTasks(appId, 4) withClue (s"The new tasks for ${appId} did not start running.") //make sure there are 2 additional tasks
+
+        val newVersion = appV2.value.version.toString
+        val updatedTasks = updated.filter(_.version.contains(newVersion))
+        val updatedTaskIds: List[String] = updatedTasks.map(_.id)
+        updatedTaskIds should have size 2 withClue (s"Update ${updatedTaskIds.size} instead of 2 for ${appId}")
+
+        And("ServiceMock1 is up")
+        val serviceFacade1 = ServiceMockFacade(f.marathon.tasks(appId).value) { task =>
+          task.version.contains(newVersion) && task.launched
+        }
+        And("We trigger the first new task to continue service migration")
+        serviceFacade1.continue()
+
+        When("we force the leader to abdicate to simulate a failover")
+        server.restart().futureValue
+        f.waitForSSEConnect()
+
+        And("second updated task becomes healthy")
+        val serviceFacade2 = ServiceMockFacade(f.marathon.tasks(appId).value) { task =>
+          task != serviceFacade1.task && task.version.contains(newVersion) && task.launched
+        }
+        And("We trigger the second new task to continue service migration")
+        serviceFacade2.continue()
+
+        Then("the app should eventually have only 2 tasks launched")
+        f.waitForTasks(appId, 2) should have size 2
+
+        And("app was deployed successfully")
+        f.waitForDeployment(appV2)
+
+        val after = f.marathon.tasks(appId)
+        val afterTaskIds = after.value.map(_.id)
+        logger.debug(s"App after restart: ${f.marathon.app(appId).entityPrettyJsonString}")
+
+        And("taskIds after restart should be equal to the updated taskIds (not started ones)")
+        afterTaskIds.sorted should equal (updatedTaskIds.sorted)
+
       }
     }
     "health checks" should {
