@@ -108,8 +108,8 @@ All validation specified in the RAML is now programatically enforced, leading to
 
 Marathon is in better compliance with various security best-practices. An example of this is that Marathon no longer responds to the directory listing request.
 
-
-------------------------------------------------------------
+### Fixed issues
+- [MARATHON-7320](https://jira.mesosphere.com/browse/MARATHON-7320) Fix MAX_PER constraint for attributes.
 
 ## Changes from 1.4.1 to 1.4.2
 Bugfix release
