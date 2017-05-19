@@ -50,13 +50,21 @@ class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest w
 
     "readiness" should {
       "deployment with 1 ready and 1 not ready instance is continued properly after a restart" in withMarathon("readiness") { (server, f) =>
-        val readinessCheck = raml.ReadinessCheck(
-          "ready",
+        //        val readinessCheck = raml.ReadinessCheck(
+        //          "ready",
+        //          portName = "http",
+        //          path = "/v1/plan",
+        //          intervalSeconds = 2,
+        //          timeoutSeconds = 1,
+        //          preserveLastResponse = true)
+        val ramlReadinessCheck = raml.ReadinessCheck(
+          name = "ready",
           portName = "http",
-          path = "/v1/plan",
+          path = "/ready",
           intervalSeconds = 2,
           timeoutSeconds = 1,
-          preserveLastResponse = true)
+          preserveLastResponse = true
+        )
 
         Given("a new simple app with 2 instances")
         val appId = f.testBasePath / "app"
@@ -69,15 +77,18 @@ class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest w
         f.waitForDeployment(created)
 
         When("updating the app")
-        val plan = "phase(block1)"
         val updateApp = raml.AppUpdate(
-          cmd = Some(s"""${serviceMockScript(f)} '$plan'"""),
+          cmd = f.appProxy(appId, versionId = "v2", instances = 2).cmd,
           portDefinitions = Some(immutable.Seq(raml.PortDefinition(name = Some("http")))),
-          readinessChecks = Some(Seq(readinessCheck)))
+          readinessChecks = Some(Seq(ramlReadinessCheck)))
         val appV2 = f.marathon.updateApp(appId, updateApp)
+        val readinessCheck = appProxyReadinessCheck(appId, "v2")
+        // TODO: set only 1 instance to be ready
+        readinessCheck.isReady.set(true)
 
         And("new tasks are started and running")
-        val updated = f.waitForTasks(appId, 4) withClue (s"The new tasks for ${appId} did not start running.") //make sure there are 2 additional tasks
+        //make sure there are 2 additional tasks
+        val updated = f.waitForTasks(appId, 4) withClue (s"The new tasks for ${appId} did not start running.")
 
         val newVersion = appV2.value.version.toString
         val updatedTasks = updated.filter(_.version.contains(newVersion))
@@ -85,22 +96,25 @@ class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest w
         updatedTaskIds should have size 2 withClue (s"Update ${updatedTaskIds.size} instead of 2 for ${appId}")
 
         And("ServiceMock1 is up")
-        val serviceFacade1 = ServiceMockFacade(f.marathon.tasks(appId).value) { task =>
-          task.version.contains(newVersion) && task.launched
-        }
+        //        val serviceFacade1 = ServiceMockFacade(f.marathon.tasks(appId).value) { task =>
+        //          task.version.contains(newVersion) && task.launched
+        //        }
         And("We trigger the first new task to continue service migration")
-        serviceFacade1.continue()
+        //        serviceFacade1.continue()
 
         When("we force the leader to abdicate to simulate a failover")
         server.restart().futureValue
         f.waitForSSEConnect()
 
+        // TODO: Verify ongoing deployment
+
         And("second updated task becomes healthy")
-        val serviceFacade2 = ServiceMockFacade(f.marathon.tasks(appId).value) { task =>
-          task != serviceFacade1.task && task.version.contains(newVersion) && task.launched
-        }
+        // TODO: Set other instance to be ready.
+        //        val serviceFacade2 = ServiceMockFacade(f.marathon.tasks(appId).value) { task =>
+        //          task != serviceFacade1.task && task.version.contains(newVersion) && task.launched
+        //        }
         And("We trigger the second new task to continue service migration")
-        serviceFacade2.continue()
+        //        serviceFacade2.continue()
 
         Then("the app should eventually have only 2 tasks launched")
         f.waitForTasks(appId, 2) should have size 2
@@ -110,10 +124,9 @@ class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest w
 
         val after = f.marathon.tasks(appId)
         val afterTaskIds = after.value.map(_.id)
-        logger.debug(s"App after restart: ${f.marathon.app(appId).entityPrettyJsonString}")
 
         And("taskIds after restart should be equal to the updated taskIds (not started ones)")
-        afterTaskIds.sorted should equal (updatedTaskIds.sorted)
+        afterTaskIds.sorted should equal (updatedTaskIds.sorted) withClue (s"App after restart: ${f.marathon.app(appId).entityPrettyJsonString}")
 
       }
     }
