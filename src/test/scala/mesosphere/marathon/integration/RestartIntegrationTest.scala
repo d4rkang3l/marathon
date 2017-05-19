@@ -3,6 +3,7 @@ package integration
 
 import java.io.File
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicInteger
 
 import mesosphere.AkkaIntegrationTest
 import mesosphere.marathon.integration.setup._
@@ -16,7 +17,7 @@ import scala.collection.immutable
   * while deploying)
   */
 @IntegrationTest
-class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest with ZookeeperServerTest with MarathonFixture with HealthCheckEndpoint {
+class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest with ZookeeperServerTest with MarathonFixture {
   import PathId._
 
   "Restarting Marathon" when {
@@ -67,7 +68,7 @@ class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest w
         )
 
         Given("a new simple app with 2 instances")
-        val appId = f.testBasePath / "app"
+        val appId = nextAppId(f)
         val createApp = f.appProxy(appId, versionId = "v1", instances = 2, healthCheck = None)
 
         createApp.instances shouldBe 2 withClue (s"There are ${createApp.instances} running instead of 2 for ${appId}")
@@ -82,7 +83,10 @@ class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest w
           portDefinitions = Some(immutable.Seq(raml.PortDefinition(name = Some("http")))),
           readinessChecks = Some(Seq(ramlReadinessCheck)))
         val appV2 = f.marathon.updateApp(appId, updateApp)
-        val readinessCheck = appProxyReadinessCheck(appId, "v2")
+
+        logger.info("##### Triggered update")
+
+        val readinessCheck = f.appProxyReadinessCheck(appId, "v2")
         // TODO: set only 1 instance to be ready
         readinessCheck.isReady.set(true)
 
@@ -102,10 +106,13 @@ class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest w
         And("We trigger the first new task to continue service migration")
         //        serviceFacade1.continue()
 
+        logger.info("### New tasks launched")
+
         When("we force the leader to abdicate to simulate a failover")
         server.restart().futureValue
         f.waitForSSEConnect()
 
+        logger.info("### Restarted")
         // TODO: Verify ongoing deployment
 
         And("second updated task becomes healthy")
@@ -207,6 +214,8 @@ class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest w
     afterTaskIds.sorted should equal (updatedTaskIds.sorted)
   }
 
+  val appIdCount = new AtomicInteger()
+  def nextAppId(f: MarathonTest): PathId = f.testBasePath / s"app-${appIdCount.getAndIncrement()}"
   /**
     * Create a shell script that can start a service mock
     */
