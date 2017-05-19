@@ -51,13 +51,6 @@ class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest w
 
     "readiness" should {
       "deployment with 1 ready and 1 not ready instance is continued properly after a restart" in withMarathon("readiness") { (server, f) =>
-        //        val readinessCheck = raml.ReadinessCheck(
-        //          "ready",
-        //          portName = "http",
-        //          path = "/v1/plan",
-        //          intervalSeconds = 2,
-        //          timeoutSeconds = 1,
-        //          preserveLastResponse = true)
         val ramlReadinessCheck = raml.ReadinessCheck(
           name = "ready",
           portName = "http",
@@ -90,7 +83,7 @@ class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest w
         // TODO: set only 1 instance to be ready
         readinessCheck.isReady.set(true)
 
-        And("new tasks are started and running")
+        Then("new tasks are started and running")
         //make sure there are 2 additional tasks
         val updated = f.waitForTasks(appId, 4) withClue (s"The new tasks for ${appId} did not start running.")
 
@@ -99,12 +92,10 @@ class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest w
         val updatedTaskIds: List[String] = updatedTasks.map(_.id)
         updatedTaskIds should have size 2 withClue (s"Update ${updatedTaskIds.size} instead of 2 for ${appId}")
 
-        And("ServiceMock1 is up")
+        When("The first task is ready")
         //        val serviceFacade1 = ServiceMockFacade(f.marathon.tasks(appId).value) { task =>
         //          task.version.contains(newVersion) && task.launched
         //        }
-        And("We trigger the first new task to continue service migration")
-        //        serviceFacade1.continue()
 
         logger.info("### New tasks launched")
 
@@ -112,8 +103,9 @@ class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest w
         server.restart().futureValue
         f.waitForSSEConnect()
 
-        logger.info("### Restarted")
-        // TODO: Verify ongoing deployment
+        And("There is one ongoing deployment")
+        val deployments = f.marathon.listDeploymentsForBaseGroup().value
+        deployments should have size 1 withClue (s"Expected 1 deployment but found ${deployments}")
 
         And("second updated task becomes healthy")
         // TODO: Set other instance to be ready.

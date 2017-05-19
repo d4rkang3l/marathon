@@ -236,7 +236,7 @@ trait HealthCheckEndpoint extends StrictLogging with ScalaFutures {
           } else {
             complete(HttpResponse(status = StatusCodes.InternalServerError))
           }
-        } ~ path(Segment / Segment / "ready") { (uriEncodedAppId, versionId) =>
+        } ~ path(Segment / Segment / Segment / "ready") { (uriEncodedAppId, versionId, taskId) =>
           import PathId._
           val appId = URLDecoder.decode(uriEncodedAppId, "UTF-8").toRootPath
 
@@ -245,7 +245,7 @@ trait HealthCheckEndpoint extends StrictLogging with ScalaFutures {
           // An app is not ready by default to avoid race conditions.
           val isReady = check.fold(false)(_.call)
 
-          logger.info(s"Received readiness check request: app=$appId, version=$versionId reply=$isReady")
+          logger.info(s"Received readiness check request: app=$appId, version=$versionId taskId=$taskId reply=$isReady")
 
           if (isReady) {
             complete(HttpResponse(status = StatusCodes.OK))
@@ -724,6 +724,7 @@ trait MarathonFixture extends AkkaUnitTestLike with MesosClusterTest with Zookee
       f(marathonServer, marathonTest)
     } finally {
       sseStream.cancel()
+      marathonTest.cleanUp()
       marathonTest.teardown()
       marathonServer.stop()
     }
