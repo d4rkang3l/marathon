@@ -198,7 +198,7 @@ case class LocalMarathon(
 trait HealthCheckEndpoint extends StrictLogging with ScalaFutures {
 
   protected val healthChecks = Lock(mutable.ListBuffer.empty[IntegrationHealthCheck])
-  protected val readinessChecks = Lock(mutable.ListBuffer.empty[IntegrationReadinessCheck])
+  protected val registeredReadinessChecks = Lock(mutable.ListBuffer.empty[IntegrationReadinessCheck])
 
   implicit val system: ActorSystem
   implicit val mat: Materializer
@@ -240,7 +240,10 @@ trait HealthCheckEndpoint extends StrictLogging with ScalaFutures {
           import PathId._
           val appId = URLDecoder.decode(uriEncodedAppId, "UTF-8").toRootPath
 
-          def check: Option[IntegrationReadinessCheck] = readinessChecks(_.find { c => c.appId == appId && c.versionId == versionId })
+          // Find a fitting registred readiness check. If the check has no task id set we ignore it.
+          def check: Option[IntegrationReadinessCheck] = registeredReadinessChecks(_.find { c =>
+            c.appId == appId && c.versionId == versionId && c.taskId.fold(true)(_ == taskId)
+          })
 
           // An app is not ready by default to avoid race conditions.
           val isReady = check.fold(false)(_.call)
@@ -288,11 +291,12 @@ trait HealthCheckEndpoint extends StrictLogging with ScalaFutures {
     *
     * @param appId The app id of the app mock
     * @param versionId The version of the app mock
+    * @param taskId Optional task id to identify the task of the app mock.
     * @return The IntegrationReadinessCheck object which is used to control replies.
     */
-  def appProxyReadinessCheck(appId: PathId, versionId: String): IntegrationReadinessCheck = {
-    val check = new IntegrationReadinessCheck(appId, versionId)
-    readinessChecks { checks =>
+  def registerProxyReadinessCheck(appId: PathId, versionId: String, taskId: Option[String] = None): IntegrationReadinessCheck = {
+    val check = new IntegrationReadinessCheck(appId, versionId, taskId)
+    registeredReadinessChecks { checks =>
       checks.filter(c => c.appId == appId && c.versionId == versionId).foreach(checks -= _)
       checks += check
     }

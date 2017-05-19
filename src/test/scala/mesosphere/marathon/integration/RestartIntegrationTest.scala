@@ -79,11 +79,7 @@ class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest w
 
         logger.info("##### Triggered update")
 
-        val readinessCheck = f.appProxyReadinessCheck(appId, "v2")
-        // TODO: set only 1 instance to be ready
-        readinessCheck.isReady.set(true)
-
-        Then("new tasks are started and running")
+        Then("new tasks are launched")
         //make sure there are 2 additional tasks
         val updated = f.waitForTasks(appId, 4) withClue (s"The new tasks for ${appId} did not start running.")
 
@@ -93,27 +89,24 @@ class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest w
         updatedTaskIds should have size 2 withClue (s"Update ${updatedTaskIds.size} instead of 2 for ${appId}")
 
         When("The first task is ready")
-        //        val serviceFacade1 = ServiceMockFacade(f.marathon.tasks(appId).value) { task =>
-        //          task.version.contains(newVersion) && task.launched
-        //        }
+        val firstTaskReadinessCheck :: otherTaskReadinessChecks =
+          updatedTaskIds.map(taskId => f.registerProxyReadinessCheck(appId, "v2", Some(taskId)))
+
+        //        firstTaskReadinessCheck.isReady.set(true)
 
         logger.info("### New tasks launched")
 
-        When("we force the leader to abdicate to simulate a failover")
+        And("we force the leader to abdicate to simulate a failover")
         server.restart().futureValue
         f.waitForSSEConnect()
 
-        And("There is one ongoing deployment")
+        Then("There is still one ongoing deployment")
         val deployments = f.marathon.listDeploymentsForBaseGroup().value
-        deployments should have size 1 withClue (s"Expected 1 deployment but found ${deployments}")
+        deployments should have size 1 withClue (s"Expected 1 ongoing deployment but found ${deployments}")
 
-        And("second updated task becomes healthy")
-        // TODO: Set other instance to be ready.
-        //        val serviceFacade2 = ServiceMockFacade(f.marathon.tasks(appId).value) { task =>
-        //          task != serviceFacade1.task && task.version.contains(newVersion) && task.launched
-        //        }
-        And("We trigger the second new task to continue service migration")
-        //        serviceFacade2.continue()
+        When("second updated task becomes healthy")
+        firstTaskReadinessCheck.isReady.set(true)
+        otherTaskReadinessChecks.foreach(_.isReady.set(true))
 
         Then("the app should eventually have only 2 tasks launched")
         f.waitForTasks(appId, 2) should have size 2
