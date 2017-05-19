@@ -100,6 +100,9 @@ class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest w
         server.restart().futureValue
         f.waitForSSEConnect()
 
+        logger.info("### Restarted marathon")
+        f.registeredReadinessChecks{ r => logger.info(s"### Checks: $r") }
+
         Then("There is still one ongoing deployment")
         val deployments = f.marathon.listDeploymentsForBaseGroup().value
         deployments should have size 1 withClue (s"Expected 1 ongoing deployment but found ${deployments}")

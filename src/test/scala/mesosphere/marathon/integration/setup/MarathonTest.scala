@@ -198,7 +198,7 @@ case class LocalMarathon(
 trait HealthCheckEndpoint extends StrictLogging with ScalaFutures {
 
   protected val healthChecks = Lock(mutable.ListBuffer.empty[IntegrationHealthCheck])
-  protected val registeredReadinessChecks = Lock(mutable.ListBuffer.empty[IntegrationReadinessCheck])
+  val registeredReadinessChecks = Lock(mutable.ListBuffer.empty[IntegrationReadinessCheck])
 
   implicit val system: ActorSystem
   implicit val mat: Materializer
@@ -297,7 +297,7 @@ trait HealthCheckEndpoint extends StrictLogging with ScalaFutures {
   def registerProxyReadinessCheck(appId: PathId, versionId: String, taskId: Option[String] = None): IntegrationReadinessCheck = {
     val check = new IntegrationReadinessCheck(appId, versionId, taskId)
     registeredReadinessChecks { checks =>
-      checks.filter(c => c.appId == appId && c.versionId == versionId).foreach(checks -= _)
+      checks.filter(c => c.appId == appId && c.versionId == versionId && c.taskId == taskId).foreach(checks -= _)
       checks += check
     }
     check

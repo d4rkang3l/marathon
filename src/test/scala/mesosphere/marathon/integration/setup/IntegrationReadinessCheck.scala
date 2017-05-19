@@ -23,4 +23,6 @@ class IntegrationReadinessCheck(val appId: PathId, val versionId: String, val ta
     logger.info(s"Got readiness check call from: app=$appId -> $state")
     state
   }
+
+  override def toString(): String = s"IntegrationReadinessCheck(appId=$appId, versionId=$versionId, taskId=$taskId)"
 }
