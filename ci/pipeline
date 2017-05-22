@@ -4,25 +4,40 @@ import ammonite.ops._
 import ammonite.ops.ImplicitWd._
 import scala.util.control.NonFatal
 
+import $file.awsClient
+import $file.fileUtil
 import $file.phabricatorClient
 import $file.provision
-import $file.fileUtil
+import $file.utils
 
-
+val PACKAGE_DIR: Path = pwd / 'target / 'universal
 /**
  * Compile Marathon and run unit and integration tests followed by scapegoat.
  */
 @main
-def compileAndTest(): Unit = {
+def compileAndTest(): Unit = utils.stage("Compile and Test") {
   %('sbt, 'clean, 'test, "integration:test", 'scapegoat)
+}
+
+@main
+def uploadPackagesToS3(): Unit = utils.stage("Upload Packages") {
+  // || file.ext == "sha1" removed, separated out
+  (ls! PACKAGE_DIR |? (file => file.ext == "tgz" || file.ext == "txz" ))
+    .foreach(awsClient.archiveArtifact)
+}
+
+@main
+def createAndUploadPackages(): Unit = {
+  createPackages()
+  uploadPackagesToS3()
+  createLinuxPackages()
 }
 
 /**
  * Creates SHA-1 for all files in the package directory
  */
 def createPackageSha1s(): Unit = {
-  val packageDir: Path = pwd /'target /'universal
-  (ls! packageDir |? (file => file.ext == "tgz" || file.ext == "txz"))
+  (ls! PACKAGE_DIR |? (file => file.ext == "tgz" || file.ext == "txz"))
     .foreach(fileUtil.writeSha1ForFile)
 }
 
@@ -31,11 +46,18 @@ def createPackageSha1s(): Unit = {
  * associated sha1
  */
 @main
-def createPackages(): Unit = {
+def createPackages(): Unit = utils.stage("Package") {
   %('sbt, "universal:packageZipTarball", "universal:packageXzTarball")
   createPackageSha1s()
 }
 
+/**
+ * Create Docker, rpm and deb packages.
+ */
+@main
+def createLinuxPackages(): Unit = utils.stage("Package Docker Image, Debian and RedHat Packages") {
+  %('sbt, "docker:publishLocal", "packageDebian", "packageRpm")
+}
 
 /**
  * The pipeline target for Phabricator builds. It triggers the Jenkins target
@@ -64,10 +86,12 @@ def phabricator(): Unit = {
  */
 @main
 def jenkins(): Unit = {
-  provision.killStaleTestProcesses()
-  provision.installMesos()
+  utils.stage("Provision") {
+    provision.killStaleTestProcesses()
+    provision.installMesos()
+  }
 
   compileAndTest()
 
-  createPackages()
+  createAndUploadPackages()
 }
