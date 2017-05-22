@@ -96,7 +96,6 @@ class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest w
           updatedTaskIds.map(taskId => f.registerProxyReadinessCheck(appId, "v2", Some(taskId)))
         firstTaskReadinessCheck.isReady.set(true)
 
-
         And("we force the leader to abdicate to simulate a failover")
         server.restart().futureValue
         f.waitForSSEConnect()
