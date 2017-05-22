@@ -728,7 +728,6 @@ trait MarathonFixture extends AkkaUnitTestLike with MesosClusterTest with Zookee
       f(marathonServer, marathonTest)
     } finally {
       sseStream.cancel()
-      marathonTest.cleanUp()
       marathonTest.teardown()
       marathonServer.stop()
     }
