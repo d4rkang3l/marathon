@@ -9,6 +9,8 @@ import mesosphere.AkkaIntegrationTest
 import mesosphere.marathon.integration.setup._
 import mesosphere.marathon.state.PathId
 import org.apache.commons.io.FileUtils
+import org.scalatest.Inspectors
+import org.scalatest.concurrent.Eventually
 
 import scala.collection.immutable
 
@@ -17,7 +19,7 @@ import scala.collection.immutable
   * while deploying)
   */
 @IntegrationTest
-class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest with ZookeeperServerTest with MarathonFixture {
+class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest with ZookeeperServerTest with MarathonFixture with Inspectors with Eventually {
   import PathId._
 
   "Restarting Marathon" when {
@@ -77,8 +79,6 @@ class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest w
           readinessChecks = Some(Seq(ramlReadinessCheck)))
         val appV2 = f.marathon.updateApp(appId, updateApp)
 
-        logger.info("##### Triggered update")
-
         Then("new tasks are launched")
         //make sure there are 2 additional tasks
         val updated = f.waitForTasks(appId, 4) withClue (s"The new tasks for ${appId} did not start running.")
@@ -87,28 +87,25 @@ class RestartIntegrationTest extends AkkaIntegrationTest with MesosClusterTest w
         val updatedTasks = updated.filter(_.version.contains(newVersion))
         val updatedTaskIds: List[String] = updatedTasks.map(_.id)
         updatedTaskIds should have size 2 withClue (s"Update ${updatedTaskIds.size} instead of 2 for ${appId}")
+        eventually {
+          forAll (updatedTasks) { _.state should be("TASK_RUNNING") }
+        }
 
         When("The first task is ready")
         val firstTaskReadinessCheck :: otherTaskReadinessChecks =
           updatedTaskIds.map(taskId => f.registerProxyReadinessCheck(appId, "v2", Some(taskId)))
+        firstTaskReadinessCheck.isReady.set(true)
 
-        //        firstTaskReadinessCheck.isReady.set(true)
-
-        logger.info("### New tasks launched")
 
         And("we force the leader to abdicate to simulate a failover")
         server.restart().futureValue
         f.waitForSSEConnect()
-
-        logger.info("### Restarted marathon")
-        f.registeredReadinessChecks{ r => logger.info(s"### Checks: $r") }
 
         Then("There is still one ongoing deployment")
         val deployments = f.marathon.listDeploymentsForBaseGroup().value
         deployments should have size 1 withClue (s"Expected 1 ongoing deployment but found ${deployments}")
 
         When("second updated task becomes healthy")
-        firstTaskReadinessCheck.isReady.set(true)
         otherTaskReadinessChecks.foreach(_.isReady.set(true))
 
         Then("the app should eventually have only 2 tasks launched")
