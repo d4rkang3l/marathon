@@ -1022,8 +1022,8 @@ def test_private_repository_mesos_app():
     username = os.environ['DOCKER_HUB_USERNAME']
     password = os.environ['DOCKER_HUB_PASSWORD']
 
-    secret_name = "/app/marathon/config/docker"
-    secret_value_json = common.create_docker_config_json(username, password)
+    secret_name = "private-mesos-app/pullConfig"
+    secret_value_json = common.create_docker_pull_config_json(username, password)
 
     import json
     secret_value = json.dumps(secret_value_json)

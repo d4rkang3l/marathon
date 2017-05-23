@@ -94,14 +94,14 @@ object Container {
     principal: String,
     secret: Option[String] = None)
 
-  case class DockerConfig(secret: String)
+  case class DockerPullConfig(secret: String)
 
   case class MesosDocker(
       volumes: Seq[Volume] = Seq.empty,
       image: String = "",
       override val portMappings: Seq[PortMapping] = Nil,
       credential: Option[Credential] = None,
-      config: Option[DockerConfig] = None,
+      pullConfig: Option[DockerPullConfig] = None,
       forcePullImage: Boolean = false) extends Container {
 
     override def copyWith(portMappings: Seq[PortMapping] = portMappings, volumes: Seq[Volume] = volumes) =

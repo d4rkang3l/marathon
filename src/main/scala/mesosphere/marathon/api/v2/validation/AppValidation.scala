@@ -52,8 +52,8 @@ trait AppValidation {
   def dockerDockerContainerValidator(networks: Seq[Network]): Validator[Container] = {
     val validDockerEngineSpec: Validator[DockerContainer] = validator[DockerContainer] { docker =>
       docker.image is notEmpty
-      docker.config is isTrue("config is not supported with Docker containerizer") { config =>
-        config == None
+      docker.pullConfig is isTrue("pullConfig is not supported with Docker containerizer") { pullConfig =>
+        pullConfig == None
       }
       docker.portMappings is valid(optional(portMappingsValidator(networks)))
     }

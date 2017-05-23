@@ -232,7 +232,6 @@ message ExtendedContainerInfo {
 
   // Docker on a Docker engine
   message DockerInfo {
-
     required string image = 1;
 
     // deprecated in favor of ServiceDefinition.networks since 1.5
@@ -276,7 +275,7 @@ message ExtendedContainerInfo {
     // Credential to authenticate with docker registry.
     // NOTE: This is not encrypted, therefore framework and operators
     // should enable SSL when passing this information.
-    optional mesos.Credential credential = 2 [deprecated = true];
+    optional mesos.Credential deprecated_credential = 2;
 
     // With this flag set to true, the universal Mesos containerizer will
     // pull the docker image from the registry even if the image
@@ -288,7 +287,7 @@ message ExtendedContainerInfo {
     // supporting docker private registry credential per container.
     // Users can specify different docker config files for pulling
     // their private images from different registries.
-    optional mesos.Secret config = 4;
+    optional mesos.Secret pull_config = 4;
   }
 
   // AppC on the universal Mesos engine

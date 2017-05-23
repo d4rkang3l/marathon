@@ -159,7 +159,7 @@ The following JSON specifies a Docker image for the pod:
 }
 ```
 
-An optional `image.config` is supported too. For further details, please refer
+An optional `image.pullConfig` is supported too. For further details, please refer
 to [Configuration of Docker images with Mesos containerizer]({{ site.baseurl }}/docs/native-docker.html).
 
 ## Create and Manage Pods

@@ -25,8 +25,8 @@ types:
         type: strings.Path
         description: address/identifier of the file system image
         example: mesosphere/marathon:1.3.0
-      config?:
-        type: docker.DockerConfig
+      pullConfig?:
+        type: docker.DockerPullConfig
         description: |
           Docker's config.json given as a secret name into a secret store
           which corresponding value is a content of `~/.docker/config.json`.

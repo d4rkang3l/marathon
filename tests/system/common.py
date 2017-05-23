@@ -18,6 +18,14 @@ marathon_1_3 = pytest.mark.skipif('marthon_version_less_than("1.3")')
 marathon_1_4 = pytest.mark.skipif('marthon_version_less_than("1.4")')
 marathon_1_5 = pytest.mark.skipif('marthon_version_less_than("1.5")')
 
+def escape_cli_arg(arg):
+    acc = []
+    for char in arg:
+        if char in ('"', '\\'):
+            acc.append('\\')
+        acc.append(char)
+    return ''.join(acc)
+
 
 def app(id=1, instances=1):
     app_json = {
@@ -461,9 +469,9 @@ def private_docker_container_app(docker_credentials_filename='docker.tar.gz'):
     }
 
 
-def private_mesos_container_app(secret_name):
+def private_mesos_container_app(secret_name, id="/private-mesos-app"):
     return {
-        "id": "/private-mesos-app",
+        "id": id,
         "instances": 1,
         "cpus": 1,
         "mem": 128,
@@ -472,10 +480,13 @@ def private_mesos_container_app(secret_name):
             "docker": {
                 "image": "mesosphere/simple-docker-ee:latest",
                 "config": {
-                    "secret": {
-                        "source": secret_name
-                    }
+                    "secret": "pullConfigSecret"
                 }
+            }
+        },
+        "secrets": {
+            "pullConfigSecret": {
+                "source": secret_name
             }
         }
     }
@@ -781,7 +792,7 @@ def is_enterprise_cli_package_installed():
     return any(cmd['name'] == 'dcos-enterprise-cli' for cmd in result_json)
 
 
-def create_docker_config_json(username, password):
+def create_docker_pull_config_json(username, password):
     print('Creating a config.json content for dockerhub username {}'.format(username))
 
     import base64
@@ -869,7 +880,7 @@ def create_secret(secret_name, secret_value):
         :type secret_value: str
     """
     # temporarily workaround in order to be able to pass a JSON object as a secret value
-    escaped_secret_value = secret_value.replace('"', '\\"')
+    escaped_secret_value = escape_cli_arg(secret_value)
     stdout, stderr, return_code = run_dcos_command(
         'security secrets create --value="{}" {}'.format(escaped_secret_value, secret_name))
     assert return_code == 0, "Failed to create a secret: {}".format(secret_name)

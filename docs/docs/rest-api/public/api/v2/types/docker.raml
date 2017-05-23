@@ -3,14 +3,15 @@ uses:
   secrets: secrets.raml
 
 types:
-  DockerConfig:
+  DockerPullConfig:
     type: object
     properties:
       secret:
-        type: secrets.SecretDef
+        type: string
         required: true
+        minLength: 1
     description: |
-      Docker's config.json. It can be specifed only as a secret
+      Docker's config.json. It should be specifed only as a secret
       name into a secret store, and the corresponding value should be
       a stringified valid JSON object which can be found in
       `~/.docker/config.json`.

@@ -25,11 +25,6 @@
     "docker": {
       "forcePullImage": false,
       "image": "mesosphere:marathon/latest",
-      "config": {
-        "secret": {
-          "source": "/app/docker/config"
-        }
-      },
       "network": "BRIDGE",
       "parameters": [
         {

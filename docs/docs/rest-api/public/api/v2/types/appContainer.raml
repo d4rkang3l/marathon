@@ -116,11 +116,12 @@ types:
           The credentials to fetch this container.
           Please note: this property is supported only with the Mesos containerizer, not the docker containerizer.
         (pragma.deprecated): Deprecated in favor of config
-      config?:
-        type: docker.DockerConfig
+      pullConfig?:
+        type: docker.DockerPullConfig
         description: |
           Docker's config.json given as a secret name into a secret store
           which corresponding value is a content of `~/.docker/config.json`.
+          It is supported only with Mesos containerizer.
       forcePullImage?:
         type: boolean
         description: |

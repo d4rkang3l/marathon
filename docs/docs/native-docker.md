@@ -320,24 +320,28 @@ semantics. All other Docker container properties result in an error
 with the Mesos containerizer.
 
 Starting with Marathon v1.5, Mesos containerizer supports
-`container.docker.config` property, which might be used to specify a
-Docker `config.json` per Docker image. Its `secret.source` property
-should be set to a secret name, the corresponding value of which is
-content of `~/.docker/config.json`.
+`container.docker.pullConfig` property, which may be used to specify
+a Docker `config.json` per Docker image. Its `secret` property
+should be set to one of top-level `secrets` field, which refers to
+a secret in a secret store storing a content of `~/.docker/config.json`.
 
 ```json
 {
-    "id": "mesos-docker",
+    "id": "/mesos-docker",
     "container": {
         "docker": {
             "image": "mesosphere/inky",
             "config": {
-              "secret": {
-                "source": "/app/docker/config"
-              }
+                "secret": "pullConfig"
+                }
             }
         },
         "type": "MESOS"
+    },
+    "secrets": {
+        "pullConfig": {
+            "source": "/mesos-docker/pullConfig"
+        }
     },
     "args": ["hello"],
     "cpus": 0.2,
@@ -345,6 +349,9 @@ content of `~/.docker/config.json`.
     "instances": 1
 }
 ```
+
+Please note, that this feature is not supported by Docker
+containerizer yet.
 
 To learn more about secrets, please refer to
 [Secrets]({{ site.baseurl/docs/secrets.html }})

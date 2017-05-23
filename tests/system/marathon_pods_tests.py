@@ -97,8 +97,8 @@ def test_create_pod_with_private_image():
     username = os.environ['DOCKER_HUB_USERNAME']
     password = os.environ['DOCKER_HUB_PASSWORD']
 
-    secret_name = "/pod/marathon/config/docker"
-    secret_value_json = common.create_docker_config_json(username, password)
+    secret_name = "private-image-pod/pullConfig"
+    secret_value_json = common.create_docker_pull_config_json(username, password)
 
     import json
     secret_value = json.dumps(secret_value_json)
@@ -123,12 +123,15 @@ def test_create_pod_with_private_image():
                 "kind": "DOCKER",
                 "id": "mesosphere/simple-docker-ee:latest",
                 "config": {
-                    "secret": {
-                        "source": secret_name
-                    }
+                    "secret": "pullConfigSecret"
                 }
             }
-        }]
+        }],
+        "secrets": {
+            "pullConfigSecret": {
+                "source": secret_name
+            }
+        }
     }
 
     try:

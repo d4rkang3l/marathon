@@ -117,8 +117,8 @@ trait PodsValidation {
   val imageValidator = validator[Image] { image =>
     image.id.length is between(1, 1024)
     if (image.kind != ImageType.Docker) {
-      image.config is isTrue("config is supported only with Docker images") { config =>
-        config == None
+      image.pullConfig is isTrue("pullConfig is supported only with Docker images") { pullConfig =>
+        pullConfig == None
       }
     }
   }

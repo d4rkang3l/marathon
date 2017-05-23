@@ -26775,7 +26775,7 @@ public final class Protos {
           getImageBytes();
 
       /**
-       * <code>optional .mesos.Credential credential = 2 [deprecated = true];</code>
+       * <code>optional .mesos.Credential deprecated_credential = 2;</code>
        *
        * <pre>
        * Credential to authenticate with docker registry.
@@ -26783,9 +26783,9 @@ public final class Protos {
        * should enable SSL when passing this information.
        * </pre>
        */
-      @java.lang.Deprecated boolean hasCredential();
+      boolean hasDeprecatedCredential();
       /**
-       * <code>optional .mesos.Credential credential = 2 [deprecated = true];</code>
+       * <code>optional .mesos.Credential deprecated_credential = 2;</code>
        *
        * <pre>
        * Credential to authenticate with docker registry.
@@ -26793,9 +26793,9 @@ public final class Protos {
        * should enable SSL when passing this information.
        * </pre>
        */
-      @java.lang.Deprecated org.apache.mesos.Protos.Credential getCredential();
+      org.apache.mesos.Protos.Credential getDeprecatedCredential();
       /**
-       * <code>optional .mesos.Credential credential = 2 [deprecated = true];</code>
+       * <code>optional .mesos.Credential deprecated_credential = 2;</code>
        *
        * <pre>
        * Credential to authenticate with docker registry.
@@ -26803,7 +26803,7 @@ public final class Protos {
        * should enable SSL when passing this information.
        * </pre>
        */
-      @java.lang.Deprecated org.apache.mesos.Protos.CredentialOrBuilder getCredentialOrBuilder();
+      org.apache.mesos.Protos.CredentialOrBuilder getDeprecatedCredentialOrBuilder();
 
       /**
        * <code>optional bool force_pull_image = 3;</code>
@@ -26827,7 +26827,7 @@ public final class Protos {
       boolean getForcePullImage();
 
       /**
-       * <code>optional .mesos.Secret config = 4;</code>
+       * <code>optional .mesos.Secret pull_config = 4;</code>
        *
        * <pre>
        * The UTF-8 character encoded byte data, which is expected as
@@ -26837,9 +26837,9 @@ public final class Protos {
        * their private images from different registries.
        * </pre>
        */
-      boolean hasConfig();
+      boolean hasPullConfig();
       /**
-       * <code>optional .mesos.Secret config = 4;</code>
+       * <code>optional .mesos.Secret pull_config = 4;</code>
        *
        * <pre>
        * The UTF-8 character encoded byte data, which is expected as
@@ -26849,9 +26849,9 @@ public final class Protos {
        * their private images from different registries.
        * </pre>
        */
-      org.apache.mesos.Protos.Secret getConfig();
+      org.apache.mesos.Protos.Secret getPullConfig();
       /**
-       * <code>optional .mesos.Secret config = 4;</code>
+       * <code>optional .mesos.Secret pull_config = 4;</code>
        *
        * <pre>
        * The UTF-8 character encoded byte data, which is expected as
@@ -26861,7 +26861,7 @@ public final class Protos {
        * their private images from different registries.
        * </pre>
        */
-      org.apache.mesos.Protos.SecretOrBuilder getConfigOrBuilder();
+      org.apache.mesos.Protos.SecretOrBuilder getPullConfigOrBuilder();
     }
     /**
      * Protobuf type {@code mesosphere.marathon.ExtendedContainerInfo.MesosDockerInfo}
@@ -26928,12 +26928,12 @@ public final class Protos {
               case 18: {
                 org.apache.mesos.Protos.Credential.Builder subBuilder = null;
                 if (((bitField0_ & 0x00000002) == 0x00000002)) {
-                  subBuilder = credential_.toBuilder();
+                  subBuilder = deprecatedCredential_.toBuilder();
                 }
-                credential_ = input.readMessage(org.apache.mesos.Protos.Credential.PARSER, extensionRegistry);
+                deprecatedCredential_ = input.readMessage(org.apache.mesos.Protos.Credential.PARSER, extensionRegistry);
                 if (subBuilder != null) {
-                  subBuilder.mergeFrom(credential_);
-                  credential_ = subBuilder.buildPartial();
+                  subBuilder.mergeFrom(deprecatedCredential_);
+                  deprecatedCredential_ = subBuilder.buildPartial();
                 }
                 bitField0_ |= 0x00000002;
                 break;
@@ -26946,12 +26946,12 @@ public final class Protos {
               case 34: {
                 org.apache.mesos.Protos.Secret.Builder subBuilder = null;
                 if (((bitField0_ & 0x00000008) == 0x00000008)) {
-                  subBuilder = config_.toBuilder();
+                  subBuilder = pullConfig_.toBuilder();
                 }
-                config_ = input.readMessage(org.apache.mesos.Protos.Secret.PARSER, extensionRegistry);
+                pullConfig_ = input.readMessage(org.apache.mesos.Protos.Secret.PARSER, extensionRegistry);
                 if (subBuilder != null) {
-                  subBuilder.mergeFrom(config_);
-                  config_ = subBuilder.buildPartial();
+                  subBuilder.mergeFrom(pullConfig_);
+                  pullConfig_ = subBuilder.buildPartial();
                 }
                 bitField0_ |= 0x00000008;
                 break;
@@ -27056,10 +27056,10 @@ public final class Protos {
         }
       }
 
-      public static final int CREDENTIAL_FIELD_NUMBER = 2;
-      private org.apache.mesos.Protos.Credential credential_;
+      public static final int DEPRECATED_CREDENTIAL_FIELD_NUMBER = 2;
+      private org.apache.mesos.Protos.Credential deprecatedCredential_;
       /**
-       * <code>optional .mesos.Credential credential = 2 [deprecated = true];</code>
+       * <code>optional .mesos.Credential deprecated_credential = 2;</code>
        *
        * <pre>
        * Credential to authenticate with docker registry.
@@ -27067,11 +27067,11 @@ public final class Protos {
        * should enable SSL when passing this information.
        * </pre>
        */
-      @java.lang.Deprecated public boolean hasCredential() {
+      public boolean hasDeprecatedCredential() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>optional .mesos.Credential credential = 2 [deprecated = true];</code>
+       * <code>optional .mesos.Credential deprecated_credential = 2;</code>
        *
        * <pre>
        * Credential to authenticate with docker registry.
@@ -27079,11 +27079,11 @@ public final class Protos {
        * should enable SSL when passing this information.
        * </pre>
        */
-      @java.lang.Deprecated public org.apache.mesos.Protos.Credential getCredential() {
-        return credential_;
+      public org.apache.mesos.Protos.Credential getDeprecatedCredential() {
+        return deprecatedCredential_;
       }
       /**
-       * <code>optional .mesos.Credential credential = 2 [deprecated = true];</code>
+       * <code>optional .mesos.Credential deprecated_credential = 2;</code>
        *
        * <pre>
        * Credential to authenticate with docker registry.
@@ -27091,8 +27091,8 @@ public final class Protos {
        * should enable SSL when passing this information.
        * </pre>
        */
-      @java.lang.Deprecated public org.apache.mesos.Protos.CredentialOrBuilder getCredentialOrBuilder() {
-        return credential_;
+      public org.apache.mesos.Protos.CredentialOrBuilder getDeprecatedCredentialOrBuilder() {
+        return deprecatedCredential_;
       }
 
       public static final int FORCE_PULL_IMAGE_FIELD_NUMBER = 3;
@@ -27122,10 +27122,10 @@ public final class Protos {
         return forcePullImage_;
       }
 
-      public static final int CONFIG_FIELD_NUMBER = 4;
-      private org.apache.mesos.Protos.Secret config_;
+      public static final int PULL_CONFIG_FIELD_NUMBER = 4;
+      private org.apache.mesos.Protos.Secret pullConfig_;
       /**
-       * <code>optional .mesos.Secret config = 4;</code>
+       * <code>optional .mesos.Secret pull_config = 4;</code>
        *
        * <pre>
        * The UTF-8 character encoded byte data, which is expected as
@@ -27135,11 +27135,11 @@ public final class Protos {
        * their private images from different registries.
        * </pre>
        */
-      public boolean hasConfig() {
+      public boolean hasPullConfig() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
-       * <code>optional .mesos.Secret config = 4;</code>
+       * <code>optional .mesos.Secret pull_config = 4;</code>
        *
        * <pre>
        * The UTF-8 character encoded byte data, which is expected as
@@ -27149,11 +27149,11 @@ public final class Protos {
        * their private images from different registries.
        * </pre>
        */
-      public org.apache.mesos.Protos.Secret getConfig() {
-        return config_;
+      public org.apache.mesos.Protos.Secret getPullConfig() {
+        return pullConfig_;
       }
       /**
-       * <code>optional .mesos.Secret config = 4;</code>
+       * <code>optional .mesos.Secret pull_config = 4;</code>
        *
        * <pre>
        * The UTF-8 character encoded byte data, which is expected as
@@ -27163,15 +27163,15 @@ public final class Protos {
        * their private images from different registries.
        * </pre>
        */
-      public org.apache.mesos.Protos.SecretOrBuilder getConfigOrBuilder() {
-        return config_;
+      public org.apache.mesos.Protos.SecretOrBuilder getPullConfigOrBuilder() {
+        return pullConfig_;
       }
 
       private void initFields() {
         image_ = "";
-        credential_ = org.apache.mesos.Protos.Credential.getDefaultInstance();
+        deprecatedCredential_ = org.apache.mesos.Protos.Credential.getDefaultInstance();
         forcePullImage_ = false;
-        config_ = org.apache.mesos.Protos.Secret.getDefaultInstance();
+        pullConfig_ = org.apache.mesos.Protos.Secret.getDefaultInstance();
       }
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
@@ -27183,14 +27183,14 @@ public final class Protos {
           memoizedIsInitialized = 0;
           return false;
         }
-        if (hasCredential()) {
-          if (!getCredential().isInitialized()) {
+        if (hasDeprecatedCredential()) {
+          if (!getDeprecatedCredential().isInitialized()) {
             memoizedIsInitialized = 0;
             return false;
           }
         }
-        if (hasConfig()) {
-          if (!getConfig().isInitialized()) {
+        if (hasPullConfig()) {
+          if (!getPullConfig().isInitialized()) {
             memoizedIsInitialized = 0;
             return false;
           }
@@ -27206,13 +27206,13 @@ public final class Protos {
           output.writeBytes(1, getImageBytes());
         }
         if (((bitField0_ & 0x00000002) == 0x00000002)) {
-          output.writeMessage(2, credential_);
+          output.writeMessage(2, deprecatedCredential_);
         }
         if (((bitField0_ & 0x00000004) == 0x00000004)) {
           output.writeBool(3, forcePullImage_);
         }
         if (((bitField0_ & 0x00000008) == 0x00000008)) {
-          output.writeMessage(4, config_);
+          output.writeMessage(4, pullConfig_);
         }
         getUnknownFields().writeTo(output);
       }
@@ -27229,7 +27229,7 @@ public final class Protos {
         }
         if (((bitField0_ & 0x00000002) == 0x00000002)) {
           size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(2, credential_);
+            .computeMessageSize(2, deprecatedCredential_);
         }
         if (((bitField0_ & 0x00000004) == 0x00000004)) {
           size += com.google.protobuf.CodedOutputStream
@@ -27237,7 +27237,7 @@ public final class Protos {
         }
         if (((bitField0_ & 0x00000008) == 0x00000008)) {
           size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(4, config_);
+            .computeMessageSize(4, pullConfig_);
         }
         size += getUnknownFields().getSerializedSize();
         memoizedSerializedSize = size;
@@ -27352,8 +27352,8 @@ public final class Protos {
         }
         private void maybeForceBuilderInitialization() {
           if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-            getCredentialFieldBuilder();
-            getConfigFieldBuilder();
+            getDeprecatedCredentialFieldBuilder();
+            getPullConfigFieldBuilder();
           }
         }
         private static Builder create() {
@@ -27364,18 +27364,18 @@ public final class Protos {
           super.clear();
           image_ = "";
           bitField0_ = (bitField0_ & ~0x00000001);
-          if (credentialBuilder_ == null) {
-            credential_ = org.apache.mesos.Protos.Credential.getDefaultInstance();
+          if (deprecatedCredentialBuilder_ == null) {
+            deprecatedCredential_ = org.apache.mesos.Protos.Credential.getDefaultInstance();
           } else {
-            credentialBuilder_.clear();
+            deprecatedCredentialBuilder_.clear();
           }
           bitField0_ = (bitField0_ & ~0x00000002);
           forcePullImage_ = false;
           bitField0_ = (bitField0_ & ~0x00000004);
-          if (configBuilder_ == null) {
-            config_ = org.apache.mesos.Protos.Secret.getDefaultInstance();
+          if (pullConfigBuilder_ == null) {
+            pullConfig_ = org.apache.mesos.Protos.Secret.getDefaultInstance();
           } else {
-            configBuilder_.clear();
+            pullConfigBuilder_.clear();
           }
           bitField0_ = (bitField0_ & ~0x00000008);
           return this;
@@ -27413,10 +27413,10 @@ public final class Protos {
           if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
             to_bitField0_ |= 0x00000002;
           }
-          if (credentialBuilder_ == null) {
-            result.credential_ = credential_;
+          if (deprecatedCredentialBuilder_ == null) {
+            result.deprecatedCredential_ = deprecatedCredential_;
           } else {
-            result.credential_ = credentialBuilder_.build();
+            result.deprecatedCredential_ = deprecatedCredentialBuilder_.build();
           }
           if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
             to_bitField0_ |= 0x00000004;
@@ -27425,10 +27425,10 @@ public final class Protos {
           if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
             to_bitField0_ |= 0x00000008;
           }
-          if (configBuilder_ == null) {
-            result.config_ = config_;
+          if (pullConfigBuilder_ == null) {
+            result.pullConfig_ = pullConfig_;
           } else {
-            result.config_ = configBuilder_.build();
+            result.pullConfig_ = pullConfigBuilder_.build();
           }
           result.bitField0_ = to_bitField0_;
           onBuilt();
@@ -27451,14 +27451,14 @@ public final class Protos {
             image_ = other.image_;
             onChanged();
           }
-          if (other.hasCredential()) {
-            mergeCredential(other.getCredential());
+          if (other.hasDeprecatedCredential()) {
+            mergeDeprecatedCredential(other.getDeprecatedCredential());
           }
           if (other.hasForcePullImage()) {
             setForcePullImage(other.getForcePullImage());
           }
-          if (other.hasConfig()) {
-            mergeConfig(other.getConfig());
+          if (other.hasPullConfig()) {
+            mergePullConfig(other.getPullConfig());
           }
           this.mergeUnknownFields(other.getUnknownFields());
           return this;
@@ -27469,14 +27469,14 @@ public final class Protos {
             
             return false;
           }
-          if (hasCredential()) {
-            if (!getCredential().isInitialized()) {
+          if (hasDeprecatedCredential()) {
+            if (!getDeprecatedCredential().isInitialized()) {
               
               return false;
             }
           }
-          if (hasConfig()) {
-            if (!getConfig().isInitialized()) {
+          if (hasPullConfig()) {
+            if (!getPullConfig().isInitialized()) {
               
               return false;
             }
@@ -27615,11 +27615,11 @@ public final class Protos {
           return this;
         }
 
-        private org.apache.mesos.Protos.Credential credential_ = org.apache.mesos.Protos.Credential.getDefaultInstance();
+        private org.apache.mesos.Protos.Credential deprecatedCredential_ = org.apache.mesos.Protos.Credential.getDefaultInstance();
         private com.google.protobuf.SingleFieldBuilder<
-            org.apache.mesos.Protos.Credential, org.apache.mesos.Protos.Credential.Builder, org.apache.mesos.Protos.CredentialOrBuilder> credentialBuilder_;
+            org.apache.mesos.Protos.Credential, org.apache.mesos.Protos.Credential.Builder, org.apache.mesos.Protos.CredentialOrBuilder> deprecatedCredentialBuilder_;
         /**
-         * <code>optional .mesos.Credential credential = 2 [deprecated = true];</code>
+         * <code>optional .mesos.Credential deprecated_credential = 2;</code>
          *
          * <pre>
          * Credential to authenticate with docker registry.
@@ -27627,11 +27627,11 @@ public final class Protos {
          * should enable SSL when passing this information.
          * </pre>
          */
-        @java.lang.Deprecated public boolean hasCredential() {
+        public boolean hasDeprecatedCredential() {
           return ((bitField0_ & 0x00000002) == 0x00000002);
         }
         /**
-         * <code>optional .mesos.Credential credential = 2 [deprecated = true];</code>
+         * <code>optional .mesos.Credential deprecated_credential = 2;</code>
          *
          * <pre>
          * Credential to authenticate with docker registry.
@@ -27639,15 +27639,15 @@ public final class Protos {
          * should enable SSL when passing this information.
          * </pre>
          */
-        @java.lang.Deprecated public org.apache.mesos.Protos.Credential getCredential() {
-          if (credentialBuilder_ == null) {
-            return credential_;
+        public org.apache.mesos.Protos.Credential getDeprecatedCredential() {
+          if (deprecatedCredentialBuilder_ == null) {
+            return deprecatedCredential_;
           } else {
-            return credentialBuilder_.getMessage();
+            return deprecatedCredentialBuilder_.getMessage();
           }
         }
         /**
-         * <code>optional .mesos.Credential credential = 2 [deprecated = true];</code>
+         * <code>optional .mesos.Credential deprecated_credential = 2;</code>
          *
          * <pre>
          * Credential to authenticate with docker registry.
@@ -27655,21 +27655,21 @@ public final class Protos {
          * should enable SSL when passing this information.
          * </pre>
          */
-        @java.lang.Deprecated public Builder setCredential(org.apache.mesos.Protos.Credential value) {
-          if (credentialBuilder_ == null) {
+        public Builder setDeprecatedCredential(org.apache.mesos.Protos.Credential value) {
+          if (deprecatedCredentialBuilder_ == null) {
             if (value == null) {
               throw new NullPointerException();
             }
-            credential_ = value;
+            deprecatedCredential_ = value;
             onChanged();
           } else {
-            credentialBuilder_.setMessage(value);
+            deprecatedCredentialBuilder_.setMessage(value);
           }
           bitField0_ |= 0x00000002;
           return this;
         }
         /**
-         * <code>optional .mesos.Credential credential = 2 [deprecated = true];</code>
+         * <code>optional .mesos.Credential deprecated_credential = 2;</code>
          *
          * <pre>
          * Credential to authenticate with docker registry.
@@ -27677,19 +27677,19 @@ public final class Protos {
          * should enable SSL when passing this information.
          * </pre>
          */
-        @java.lang.Deprecated public Builder setCredential(
+        public Builder setDeprecatedCredential(
             org.apache.mesos.Protos.Credential.Builder builderForValue) {
-          if (credentialBuilder_ == null) {
-            credential_ = builderForValue.build();
+          if (deprecatedCredentialBuilder_ == null) {
+            deprecatedCredential_ = builderForValue.build();
             onChanged();
           } else {
-            credentialBuilder_.setMessage(builderForValue.build());
+            deprecatedCredentialBuilder_.setMessage(builderForValue.build());
           }
           bitField0_ |= 0x00000002;
           return this;
         }
         /**
-         * <code>optional .mesos.Credential credential = 2 [deprecated = true];</code>
+         * <code>optional .mesos.Credential deprecated_credential = 2;</code>
          *
          * <pre>
          * Credential to authenticate with docker registry.
@@ -27697,24 +27697,24 @@ public final class Protos {
          * should enable SSL when passing this information.
          * </pre>
          */
-        @java.lang.Deprecated public Builder mergeCredential(org.apache.mesos.Protos.Credential value) {
-          if (credentialBuilder_ == null) {
+        public Builder mergeDeprecatedCredential(org.apache.mesos.Protos.Credential value) {
+          if (deprecatedCredentialBuilder_ == null) {
             if (((bitField0_ & 0x00000002) == 0x00000002) &&
-                credential_ != org.apache.mesos.Protos.Credential.getDefaultInstance()) {
-              credential_ =
-                org.apache.mesos.Protos.Credential.newBuilder(credential_).mergeFrom(value).buildPartial();
+                deprecatedCredential_ != org.apache.mesos.Protos.Credential.getDefaultInstance()) {
+              deprecatedCredential_ =
+                org.apache.mesos.Protos.Credential.newBuilder(deprecatedCredential_).mergeFrom(value).buildPartial();
             } else {
-              credential_ = value;
+              deprecatedCredential_ = value;
             }
             onChanged();
           } else {
-            credentialBuilder_.mergeFrom(value);
+            deprecatedCredentialBuilder_.mergeFrom(value);
           }
           bitField0_ |= 0x00000002;
           return this;
         }
         /**
-         * <code>optional .mesos.Credential credential = 2 [deprecated = true];</code>
+         * <code>optional .mesos.Credential deprecated_credential = 2;</code>
          *
          * <pre>
          * Credential to authenticate with docker registry.
@@ -27722,18 +27722,18 @@ public final class Protos {
          * should enable SSL when passing this information.
          * </pre>
          */
-        @java.lang.Deprecated public Builder clearCredential() {
-          if (credentialBuilder_ == null) {
-            credential_ = org.apache.mesos.Protos.Credential.getDefaultInstance();
+        public Builder clearDeprecatedCredential() {
+          if (deprecatedCredentialBuilder_ == null) {
+            deprecatedCredential_ = org.apache.mesos.Protos.Credential.getDefaultInstance();
             onChanged();
           } else {
-            credentialBuilder_.clear();
+            deprecatedCredentialBuilder_.clear();
           }
           bitField0_ = (bitField0_ & ~0x00000002);
           return this;
         }
         /**
-         * <code>optional .mesos.Credential credential = 2 [deprecated = true];</code>
+         * <code>optional .mesos.Credential deprecated_credential = 2;</code>
          *
          * <pre>
          * Credential to authenticate with docker registry.
@@ -27741,13 +27741,13 @@ public final class Protos {
          * should enable SSL when passing this information.
          * </pre>
          */
-        @java.lang.Deprecated public org.apache.mesos.Protos.Credential.Builder getCredentialBuilder() {
+        public org.apache.mesos.Protos.Credential.Builder getDeprecatedCredentialBuilder() {
           bitField0_ |= 0x00000002;
           onChanged();
-          return getCredentialFieldBuilder().getBuilder();
+          return getDeprecatedCredentialFieldBuilder().getBuilder();
         }
         /**
-         * <code>optional .mesos.Credential credential = 2 [deprecated = true];</code>
+         * <code>optional .mesos.Credential deprecated_credential = 2;</code>
          *
          * <pre>
          * Credential to authenticate with docker registry.
@@ -27755,15 +27755,15 @@ public final class Protos {
          * should enable SSL when passing this information.
          * </pre>
          */
-        @java.lang.Deprecated public org.apache.mesos.Protos.CredentialOrBuilder getCredentialOrBuilder() {
-          if (credentialBuilder_ != null) {
-            return credentialBuilder_.getMessageOrBuilder();
+        public org.apache.mesos.Protos.CredentialOrBuilder getDeprecatedCredentialOrBuilder() {
+          if (deprecatedCredentialBuilder_ != null) {
+            return deprecatedCredentialBuilder_.getMessageOrBuilder();
           } else {
-            return credential_;
+            return deprecatedCredential_;
           }
         }
         /**
-         * <code>optional .mesos.Credential credential = 2 [deprecated = true];</code>
+         * <code>optional .mesos.Credential deprecated_credential = 2;</code>
          *
          * <pre>
          * Credential to authenticate with docker registry.
@@ -27773,16 +27773,16 @@ public final class Protos {
          */
         private com.google.protobuf.SingleFieldBuilder<
             org.apache.mesos.Protos.Credential, org.apache.mesos.Protos.Credential.Builder, org.apache.mesos.Protos.CredentialOrBuilder> 
-            getCredentialFieldBuilder() {
-          if (credentialBuilder_ == null) {
-            credentialBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            getDeprecatedCredentialFieldBuilder() {
+          if (deprecatedCredentialBuilder_ == null) {
+            deprecatedCredentialBuilder_ = new com.google.protobuf.SingleFieldBuilder<
                 org.apache.mesos.Protos.Credential, org.apache.mesos.Protos.Credential.Builder, org.apache.mesos.Protos.CredentialOrBuilder>(
-                    getCredential(),
+                    getDeprecatedCredential(),
                     getParentForChildren(),
                     isClean());
-            credential_ = null;
+            deprecatedCredential_ = null;
           }
-          return credentialBuilder_;
+          return deprecatedCredentialBuilder_;
         }
 
         private boolean forcePullImage_ ;
@@ -27841,11 +27841,11 @@ public final class Protos {
           return this;
         }
 
-        private org.apache.mesos.Protos.Secret config_ = org.apache.mesos.Protos.Secret.getDefaultInstance();
+        private org.apache.mesos.Protos.Secret pullConfig_ = org.apache.mesos.Protos.Secret.getDefaultInstance();
         private com.google.protobuf.SingleFieldBuilder<
-            org.apache.mesos.Protos.Secret, org.apache.mesos.Protos.Secret.Builder, org.apache.mesos.Protos.SecretOrBuilder> configBuilder_;
+            org.apache.mesos.Protos.Secret, org.apache.mesos.Protos.Secret.Builder, org.apache.mesos.Protos.SecretOrBuilder> pullConfigBuilder_;
         /**
-         * <code>optional .mesos.Secret config = 4;</code>
+         * <code>optional .mesos.Secret pull_config = 4;</code>
          *
          * <pre>
          * The UTF-8 character encoded byte data, which is expected as
@@ -27855,11 +27855,11 @@ public final class Protos {
          * their private images from different registries.
          * </pre>
          */
-        public boolean hasConfig() {
+        public boolean hasPullConfig() {
           return ((bitField0_ & 0x00000008) == 0x00000008);
         }
         /**
-         * <code>optional .mesos.Secret config = 4;</code>
+         * <code>optional .mesos.Secret pull_config = 4;</code>
          *
          * <pre>
          * The UTF-8 character encoded byte data, which is expected as
@@ -27869,15 +27869,15 @@ public final class Protos {
          * their private images from different registries.
          * </pre>
          */
-        public org.apache.mesos.Protos.Secret getConfig() {
-          if (configBuilder_ == null) {
-            return config_;
+        public org.apache.mesos.Protos.Secret getPullConfig() {
+          if (pullConfigBuilder_ == null) {
+            return pullConfig_;
           } else {
-            return configBuilder_.getMessage();
+            return pullConfigBuilder_.getMessage();
           }
         }
         /**
-         * <code>optional .mesos.Secret config = 4;</code>
+         * <code>optional .mesos.Secret pull_config = 4;</code>
          *
          * <pre>
          * The UTF-8 character encoded byte data, which is expected as
@@ -27887,21 +27887,21 @@ public final class Protos {
          * their private images from different registries.
          * </pre>
          */
-        public Builder setConfig(org.apache.mesos.Protos.Secret value) {
-          if (configBuilder_ == null) {
+        public Builder setPullConfig(org.apache.mesos.Protos.Secret value) {
+          if (pullConfigBuilder_ == null) {
             if (value == null) {
               throw new NullPointerException();
             }
-            config_ = value;
+            pullConfig_ = value;
             onChanged();
           } else {
-            configBuilder_.setMessage(value);
+            pullConfigBuilder_.setMessage(value);
           }
           bitField0_ |= 0x00000008;
           return this;
         }
         /**
-         * <code>optional .mesos.Secret config = 4;</code>
+         * <code>optional .mesos.Secret pull_config = 4;</code>
          *
          * <pre>
          * The UTF-8 character encoded byte data, which is expected as
@@ -27911,19 +27911,19 @@ public final class Protos {
          * their private images from different registries.
          * </pre>
          */
-        public Builder setConfig(
+        public Builder setPullConfig(
             org.apache.mesos.Protos.Secret.Builder builderForValue) {
-          if (configBuilder_ == null) {
-            config_ = builderForValue.build();
+          if (pullConfigBuilder_ == null) {
+            pullConfig_ = builderForValue.build();
             onChanged();
           } else {
-            configBuilder_.setMessage(builderForValue.build());
+            pullConfigBuilder_.setMessage(builderForValue.build());
           }
           bitField0_ |= 0x00000008;
           return this;
         }
         /**
-         * <code>optional .mesos.Secret config = 4;</code>
+         * <code>optional .mesos.Secret pull_config = 4;</code>
          *
          * <pre>
          * The UTF-8 character encoded byte data, which is expected as
@@ -27933,24 +27933,24 @@ public final class Protos {
          * their private images from different registries.
          * </pre>
          */
-        public Builder mergeConfig(org.apache.mesos.Protos.Secret value) {
-          if (configBuilder_ == null) {
+        public Builder mergePullConfig(org.apache.mesos.Protos.Secret value) {
+          if (pullConfigBuilder_ == null) {
             if (((bitField0_ & 0x00000008) == 0x00000008) &&
-                config_ != org.apache.mesos.Protos.Secret.getDefaultInstance()) {
-              config_ =
-                org.apache.mesos.Protos.Secret.newBuilder(config_).mergeFrom(value).buildPartial();
+                pullConfig_ != org.apache.mesos.Protos.Secret.getDefaultInstance()) {
+              pullConfig_ =
+                org.apache.mesos.Protos.Secret.newBuilder(pullConfig_).mergeFrom(value).buildPartial();
             } else {
-              config_ = value;
+              pullConfig_ = value;
             }
             onChanged();
           } else {
-            configBuilder_.mergeFrom(value);
+            pullConfigBuilder_.mergeFrom(value);
           }
           bitField0_ |= 0x00000008;
           return this;
         }
         /**
-         * <code>optional .mesos.Secret config = 4;</code>
+         * <code>optional .mesos.Secret pull_config = 4;</code>
          *
          * <pre>
          * The UTF-8 character encoded byte data, which is expected as
@@ -27960,18 +27960,18 @@ public final class Protos {
          * their private images from different registries.
          * </pre>
          */
-        public Builder clearConfig() {
-          if (configBuilder_ == null) {
-            config_ = org.apache.mesos.Protos.Secret.getDefaultInstance();
+        public Builder clearPullConfig() {
+          if (pullConfigBuilder_ == null) {
+            pullConfig_ = org.apache.mesos.Protos.Secret.getDefaultInstance();
             onChanged();
           } else {
-            configBuilder_.clear();
+            pullConfigBuilder_.clear();
           }
           bitField0_ = (bitField0_ & ~0x00000008);
           return this;
         }
         /**
-         * <code>optional .mesos.Secret config = 4;</code>
+         * <code>optional .mesos.Secret pull_config = 4;</code>
          *
          * <pre>
          * The UTF-8 character encoded byte data, which is expected as
@@ -27981,13 +27981,13 @@ public final class Protos {
          * their private images from different registries.
          * </pre>
          */
-        public org.apache.mesos.Protos.Secret.Builder getConfigBuilder() {
+        public org.apache.mesos.Protos.Secret.Builder getPullConfigBuilder() {
           bitField0_ |= 0x00000008;
           onChanged();
-          return getConfigFieldBuilder().getBuilder();
+          return getPullConfigFieldBuilder().getBuilder();
         }
         /**
-         * <code>optional .mesos.Secret config = 4;</code>
+         * <code>optional .mesos.Secret pull_config = 4;</code>
          *
          * <pre>
          * The UTF-8 character encoded byte data, which is expected as
@@ -27997,15 +27997,15 @@ public final class Protos {
          * their private images from different registries.
          * </pre>
          */
-        public org.apache.mesos.Protos.SecretOrBuilder getConfigOrBuilder() {
-          if (configBuilder_ != null) {
-            return configBuilder_.getMessageOrBuilder();
+        public org.apache.mesos.Protos.SecretOrBuilder getPullConfigOrBuilder() {
+          if (pullConfigBuilder_ != null) {
+            return pullConfigBuilder_.getMessageOrBuilder();
           } else {
-            return config_;
+            return pullConfig_;
           }
         }
         /**
-         * <code>optional .mesos.Secret config = 4;</code>
+         * <code>optional .mesos.Secret pull_config = 4;</code>
          *
          * <pre>
          * The UTF-8 character encoded byte data, which is expected as
@@ -28017,16 +28017,16 @@ public final class Protos {
          */
         private com.google.protobuf.SingleFieldBuilder<
             org.apache.mesos.Protos.Secret, org.apache.mesos.Protos.Secret.Builder, org.apache.mesos.Protos.SecretOrBuilder> 
-            getConfigFieldBuilder() {
-          if (configBuilder_ == null) {
-            configBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            getPullConfigFieldBuilder() {
+          if (pullConfigBuilder_ == null) {
+            pullConfigBuilder_ = new com.google.protobuf.SingleFieldBuilder<
                 org.apache.mesos.Protos.Secret, org.apache.mesos.Protos.Secret.Builder, org.apache.mesos.Protos.SecretOrBuilder>(
-                    getConfig(),
+                    getPullConfig(),
                     getParentForChildren(),
                     isClean());
-            config_ = null;
+            pullConfig_ = null;
           }
-          return configBuilder_;
+          return pullConfigBuilder_;
         }
 
         // @@protoc_insertion_point(builder_scope:mesosphere.marathon.ExtendedContainerInfo.MesosDockerInfo)
@@ -47688,7 +47688,7 @@ public final class Protos {
       "\022\013\n\007Dropped\020\017\"M\n\013MarathonApp\022\014\n\004name\030\001 \001" +
       "(\t\0220\n\005tasks\030\002 \003(\0132!.mesosphere.marathon." +
       "MarathonTask\"1\n\rContainerInfo\022\017\n\005image\030\001",
-      " \002(\014:\000\022\017\n\007options\030\002 \003(\014\"\211\n\n\025ExtendedCont" +
+      " \002(\014:\000\022\017\n\007options\030\002 \003(\014\"\225\n\n\025ExtendedCont" +
       "ainerInfo\022\'\n\004type\030\001 \002(\0162\031.mesos.Containe" +
       "rInfo.Type\022,\n\007volumes\030\002 \003(\0132\033.mesosphere" +
       ".marathon.Volume\022M\n\rport_mappings\030\006 \003(\0132" +
@@ -47710,75 +47710,75 @@ public final class Protos {
       "leteDockerPortMapping\022\021\n\thost_port\030\001 \001(\r",
       "\022\026\n\016container_port\030\002 \002(\r\022\020\n\010protocol\030\003 \001" +
       "(\t\022\014\n\004name\030\004 \001(\t\022\034\n\006labels\030\005 \003(\0132\014.mesos" +
-      ".Label\022\027\n\014service_port\030d \001(\r:\0010\032\204\001\n\017Meso" +
-      "sDockerInfo\022\r\n\005image\030\001 \002(\t\022)\n\ncredential" +
-      "\030\002 \001(\0132\021.mesos.CredentialB\002\030\001\022\030\n\020force_p" +
-      "ull_image\030\003 \001(\010\022\035\n\006config\030\004 \001(\0132\r.mesos." +
-      "Secret\032b\n\rMesosAppCInfo\022\r\n\005image\030\001 \002(\t\022\n" +
-      "\n\002id\030\002 \001(\t\022\034\n\006labels\030\003 \003(\0132\014.mesos.Label" +
-      "\022\030\n\020force_pull_image\030\004 \001(\010\032\246\001\n\013PortMappi" +
-      "ng\022\021\n\thost_port\030\001 \001(\r\022\026\n\016container_port\030",
-      "\002 \002(\r\022\020\n\010protocol\030\003 \001(\t\022\014\n\004name\030\004 \001(\t\022\034\n" +
-      "\006labels\030\005 \003(\0132\014.mesos.Label\022\027\n\014service_p" +
-      "ort\030\006 \001(\r:\0010\022\025\n\rnetwork_names\030\007 \003(\t\"\377\003\n\006" +
-      "Volume\022 \n\004mode\030\003 \002(\0162\022.mesos.Volume.Mode" +
-      "\022\026\n\016container_path\030\001 \002(\t\022\021\n\thost_path\030\002 " +
-      "\001(\t\022\033\n\005image\030\004 \001(\0132\014.mesos.Image\022D\n\npers" +
-      "istent\030\005 \001(\01320.mesosphere.marathon.Volum" +
-      "e.PersistentVolumeInfo\022@\n\010external\030\006 \001(\013" +
-      "2..mesosphere.marathon.Volume.ExternalVo" +
-      "lumeInfo\032\237\001\n\024PersistentVolumeInfo\022\014\n\004siz",
-      "e\030\001 \002(\004\0222\n\004type\030\002 \001(\0162$.mesos.Resource.D" +
-      "iskInfo.Source.Type\0224\n\013constraints\030\003 \003(\013" +
-      "2\037.mesosphere.marathon.Constraint\022\017\n\007max" +
-      "Size\030\004 \001(\004\032a\n\022ExternalVolumeInfo\022\014\n\004size" +
-      "\030\001 \001(\004\022\014\n\004name\030\002 \002(\t\022\020\n\010provider\030\003 \002(\t\022\035" +
-      "\n\007options\030\004 \003(\0132\014.mesos.Label\"\274\001\n\016Storag" +
-      "eVersion\022\r\n\005major\030\001 \002(\r\022\r\n\005minor\030\002 \002(\r\022\r" +
-      "\n\005patch\030\003 \002(\r\022I\n\006format\030\004 \001(\01621.mesosphe" +
-      "re.marathon.StorageVersion.StorageFormat" +
-      ":\006LEGACY\"2\n\rStorageFormat\022\n\n\006LEGACY\020\000\022\025\n",
-      "\021PERSISTENCE_STORE\020\001\"Z\n\031UpgradeStrategyD" +
-      "efinition\022\035\n\025minimumHealthCapacity\030\001 \002(\001" +
-      "\022\036\n\023maximumOverCapacity\030\002 \001(\001:\0011\"\236\003\n\017Gro" +
-      "upDefinition\022\n\n\002id\030\001 \002(\t\022\017\n\007version\030\002 \002(" +
-      "\t\022?\n\017deprecated_apps\030\003 \003(\0132&.mesosphere." +
-      "marathon.ServiceDefinition\0222\n\017deprecated" +
-      "_pods\030\010 \003(\0132\031.mesosphere.marathon.Json\0224" +
-      "\n\006groups\030\004 \003(\0132$.mesosphere.marathon.Gro" +
-      "upDefinition\022\024\n\014dependencies\030\005 \003(\t\022?\n\004ap" +
-      "ps\030\006 \003(\01321.mesosphere.marathon.GroupDefi",
-      "nition.AppReference\022?\n\004pods\030\007 \003(\01321.meso" +
-      "sphere.marathon.GroupDefinition.AppRefer" +
-      "ence\032+\n\014AppReference\022\n\n\002id\030\001 \002(\t\022\017\n\007vers" +
-      "ion\030\002 \002(\t\"\371\001\n\030DeploymentPlanDefinition\022\n" +
-      "\n\002id\030\001 \002(\t\022\021\n\ttimestamp\030\002 \001(\t\022A\n\023depreca" +
-      "ted_original\030\004 \001(\0132$.mesosphere.marathon" +
-      ".GroupDefinition\022?\n\021deprecated_target\030\005 " +
-      "\001(\0132$.mesosphere.marathon.GroupDefinitio" +
-      "n\022\035\n\025original_root_version\030\006 \001(\t\022\033\n\023targ" +
-      "et_root_version\030\007 \001(\t\"\306\001\n\013TaskFailure\022\016\n",
-      "\006app_id\030\001 \002(\t\022\036\n\007task_id\030\002 \002(\0132\r.mesos.T" +
-      "askID\022\037\n\005state\030\003 \002(\0162\020.mesos.TaskState\022\021" +
-      "\n\007message\030\004 \001(\t:\000\022\016\n\004host\030\005 \001(\t:\000\022\017\n\007ver" +
-      "sion\030\006 \002(\t\022\021\n\ttimestamp\030\007 \002(\t\022\037\n\007slaveId" +
-      "\030\010 \001(\0132\016.mesos.SlaveID\"T\n\014ZKStoreEntry\022\014" +
-      "\n\004name\030\001 \002(\t\022\014\n\004uuid\030\002 \002(\014\022\r\n\005value\030\003 \002(" +
-      "\014\022\031\n\ncompressed\030\004 \001(\010:\005false\"\326\001\n\023Residen" +
-      "cyDefinition\022(\n relaunchEscalationTimeou" +
-      "tSeconds\030\001 \001(\003\022S\n\020taskLostBehavior\030\002 \001(\016" +
-      "29.mesosphere.marathon.ResidencyDefiniti",
-      "on.TaskLostBehavior\"@\n\020TaskLostBehavior\022" +
-      "\032\n\026RELAUNCH_AFTER_TIMEOUT\020\000\022\020\n\014WAIT_FORE" +
-      "VER\020\001\"$\n\006Secret\022\n\n\002id\030\001 \002(\t\022\016\n\006source\030\002 " +
-      "\002(\t\"\262\001\n\017EnvVarReference\0227\n\004type\030\001 \002(\0162)." +
-      "mesosphere.marathon.EnvVarReference.Type" +
-      "\022\014\n\004name\030\002 \002(\t\0227\n\tsecretRef\030\003 \001(\0132$.meso" +
-      "sphere.marathon.EnvVarSecretRef\"\037\n\004Type\022" +
-      "\013\n\007UNKNOWN\020\000\022\n\n\006SECRET\020\001\"#\n\017EnvVarSecret" +
-      "Ref\022\020\n\010secretId\030\001 \002(\t*3\n\rKillSelection\022\021" +
-      "\n\rYoungestFirst\020\001\022\017\n\013OldestFirst\020\002B\035\n\023me",
-      "sosphere.marathonB\006Protos"
+      ".Label\022\027\n\014service_port\030d \001(\r:\0010\032\220\001\n\017Meso" +
+      "sDockerInfo\022\r\n\005image\030\001 \002(\t\0220\n\025deprecated" +
+      "_credential\030\002 \001(\0132\021.mesos.Credential\022\030\n\020" +
+      "force_pull_image\030\003 \001(\010\022\"\n\013pull_config\030\004 " +
+      "\001(\0132\r.mesos.Secret\032b\n\rMesosAppCInfo\022\r\n\005i" +
+      "mage\030\001 \002(\t\022\n\n\002id\030\002 \001(\t\022\034\n\006labels\030\003 \003(\0132\014" +
+      ".mesos.Label\022\030\n\020force_pull_image\030\004 \001(\010\032\246" +
+      "\001\n\013PortMapping\022\021\n\thost_port\030\001 \001(\r\022\026\n\016con",
+      "tainer_port\030\002 \002(\r\022\020\n\010protocol\030\003 \001(\t\022\014\n\004n" +
+      "ame\030\004 \001(\t\022\034\n\006labels\030\005 \003(\0132\014.mesos.Label\022" +
+      "\027\n\014service_port\030\006 \001(\r:\0010\022\025\n\rnetwork_name" +
+      "s\030\007 \003(\t\"\377\003\n\006Volume\022 \n\004mode\030\003 \002(\0162\022.mesos" +
+      ".Volume.Mode\022\026\n\016container_path\030\001 \002(\t\022\021\n\t" +
+      "host_path\030\002 \001(\t\022\033\n\005image\030\004 \001(\0132\014.mesos.I" +
+      "mage\022D\n\npersistent\030\005 \001(\01320.mesosphere.ma" +
+      "rathon.Volume.PersistentVolumeInfo\022@\n\010ex" +
+      "ternal\030\006 \001(\0132..mesosphere.marathon.Volum" +
+      "e.ExternalVolumeInfo\032\237\001\n\024PersistentVolum",
+      "eInfo\022\014\n\004size\030\001 \002(\004\0222\n\004type\030\002 \001(\0162$.meso" +
+      "s.Resource.DiskInfo.Source.Type\0224\n\013const" +
+      "raints\030\003 \003(\0132\037.mesosphere.marathon.Const" +
+      "raint\022\017\n\007maxSize\030\004 \001(\004\032a\n\022ExternalVolume" +
+      "Info\022\014\n\004size\030\001 \001(\004\022\014\n\004name\030\002 \002(\t\022\020\n\010prov" +
+      "ider\030\003 \002(\t\022\035\n\007options\030\004 \003(\0132\014.mesos.Labe" +
+      "l\"\274\001\n\016StorageVersion\022\r\n\005major\030\001 \002(\r\022\r\n\005m" +
+      "inor\030\002 \002(\r\022\r\n\005patch\030\003 \002(\r\022I\n\006format\030\004 \001(" +
+      "\01621.mesosphere.marathon.StorageVersion.S" +
+      "torageFormat:\006LEGACY\"2\n\rStorageFormat\022\n\n",
+      "\006LEGACY\020\000\022\025\n\021PERSISTENCE_STORE\020\001\"Z\n\031Upgr" +
+      "adeStrategyDefinition\022\035\n\025minimumHealthCa" +
+      "pacity\030\001 \002(\001\022\036\n\023maximumOverCapacity\030\002 \001(" +
+      "\001:\0011\"\236\003\n\017GroupDefinition\022\n\n\002id\030\001 \002(\t\022\017\n\007" +
+      "version\030\002 \002(\t\022?\n\017deprecated_apps\030\003 \003(\0132&" +
+      ".mesosphere.marathon.ServiceDefinition\0222" +
+      "\n\017deprecated_pods\030\010 \003(\0132\031.mesosphere.mar" +
+      "athon.Json\0224\n\006groups\030\004 \003(\0132$.mesosphere." +
+      "marathon.GroupDefinition\022\024\n\014dependencies" +
+      "\030\005 \003(\t\022?\n\004apps\030\006 \003(\01321.mesosphere.marath",
+      "on.GroupDefinition.AppReference\022?\n\004pods\030" +
+      "\007 \003(\01321.mesosphere.marathon.GroupDefinit" +
+      "ion.AppReference\032+\n\014AppReference\022\n\n\002id\030\001" +
+      " \002(\t\022\017\n\007version\030\002 \002(\t\"\371\001\n\030DeploymentPlan" +
+      "Definition\022\n\n\002id\030\001 \002(\t\022\021\n\ttimestamp\030\002 \001(" +
+      "\t\022A\n\023deprecated_original\030\004 \001(\0132$.mesosph" +
+      "ere.marathon.GroupDefinition\022?\n\021deprecat" +
+      "ed_target\030\005 \001(\0132$.mesosphere.marathon.Gr" +
+      "oupDefinition\022\035\n\025original_root_version\030\006" +
+      " \001(\t\022\033\n\023target_root_version\030\007 \001(\t\"\306\001\n\013Ta",
+      "skFailure\022\016\n\006app_id\030\001 \002(\t\022\036\n\007task_id\030\002 \002" +
+      "(\0132\r.mesos.TaskID\022\037\n\005state\030\003 \002(\0162\020.mesos" +
+      ".TaskState\022\021\n\007message\030\004 \001(\t:\000\022\016\n\004host\030\005 " +
+      "\001(\t:\000\022\017\n\007version\030\006 \002(\t\022\021\n\ttimestamp\030\007 \002(" +
+      "\t\022\037\n\007slaveId\030\010 \001(\0132\016.mesos.SlaveID\"T\n\014ZK" +
+      "StoreEntry\022\014\n\004name\030\001 \002(\t\022\014\n\004uuid\030\002 \002(\014\022\r" +
+      "\n\005value\030\003 \002(\014\022\031\n\ncompressed\030\004 \001(\010:\005false" +
+      "\"\326\001\n\023ResidencyDefinition\022(\n relaunchEsca" +
+      "lationTimeoutSeconds\030\001 \001(\003\022S\n\020taskLostBe" +
+      "havior\030\002 \001(\01629.mesosphere.marathon.Resid",
+      "encyDefinition.TaskLostBehavior\"@\n\020TaskL" +
+      "ostBehavior\022\032\n\026RELAUNCH_AFTER_TIMEOUT\020\000\022" +
+      "\020\n\014WAIT_FOREVER\020\001\"$\n\006Secret\022\n\n\002id\030\001 \002(\t\022" +
+      "\016\n\006source\030\002 \002(\t\"\262\001\n\017EnvVarReference\0227\n\004t" +
+      "ype\030\001 \002(\0162).mesosphere.marathon.EnvVarRe" +
+      "ference.Type\022\014\n\004name\030\002 \002(\t\0227\n\tsecretRef\030" +
+      "\003 \001(\0132$.mesosphere.marathon.EnvVarSecret" +
+      "Ref\"\037\n\004Type\022\013\n\007UNKNOWN\020\000\022\n\n\006SECRET\020\001\"#\n\017" +
+      "EnvVarSecretRef\022\020\n\010secretId\030\001 \002(\t*3\n\rKil" +
+      "lSelection\022\021\n\rYoungestFirst\020\001\022\017\n\013OldestF",
+      "irst\020\002B\035\n\023mesosphere.marathonB\006Protos"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -47912,7 +47912,7 @@ public final class Protos {
     internal_static_mesosphere_marathon_ExtendedContainerInfo_MesosDockerInfo_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_mesosphere_marathon_ExtendedContainerInfo_MesosDockerInfo_descriptor,
-        new java.lang.String[] { "Image", "Credential", "ForcePullImage", "Config", });
+        new java.lang.String[] { "Image", "DeprecatedCredential", "ForcePullImage", "PullConfig", });
     internal_static_mesosphere_marathon_ExtendedContainerInfo_MesosAppCInfo_descriptor =
       internal_static_mesosphere_marathon_ExtendedContainerInfo_descriptor.getNestedTypes().get(2);
     internal_static_mesosphere_marathon_ExtendedContainerInfo_MesosAppCInfo_fieldAccessorTable = new
