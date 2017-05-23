@@ -1,6 +1,8 @@
 package mesosphere.util
 
 import akka.actor._
+import com.typesafe.scalalogging.StrictLogging
+
 import scala.concurrent.Promise
 import scala.concurrent.Future
 
@@ -24,7 +26,7 @@ class PromiseActor(promise: Promise[Any]) extends Actor {
   }
 }
 
-object PromiseActor {
+object PromiseActor extends StrictLogging {
   /**
     * Sends the given message to the given actorRef and waits indefinitely for the response. The response
     * must be of the given type T or a `akka.actor.Status.Failure`.
@@ -36,6 +38,7 @@ object PromiseActor {
   def askWithoutTimeout[T](actorRefFactory: ActorRefFactory, actorRef: ActorRef, message: Any): Future[T] = {
     val promise = Promise[T]()
     val promiseActor = actorRefFactory.actorOf(Props(classOf[PromiseActor], promise))
+    logger.debug(s"Send $message to $actorRef")
     actorRef.tell(message, promiseActor)
     promise.future
   }

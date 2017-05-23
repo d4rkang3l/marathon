@@ -261,6 +261,7 @@ class MarathonSchedulerActor private (
   def driver: SchedulerDriver = marathonSchedulerDriverHolder.driver.get
 
   def deploy(origSender: ActorRef, cmd: Deploy): Unit = {
+    logger.debug(s"Received Deploy command with DeploymentPlan=${cmd.plan.id}, force=${cmd.force}")
     val plan = cmd.plan
     val runSpecIds = plan.affectedRunSpecIds
 

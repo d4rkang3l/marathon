@@ -169,6 +169,7 @@ class DeploymentManagerActor(
       sender() ! Future.successful(deploymentStatus.values.to[Seq])
 
     case StartDeployment(plan, origSender, force) =>
+      logger.debug(s"Received StartDeployment for plan ${plan.id} with force=$force")
       val conflicts = conflictingDeployments(plan)
       val hasConflicts = conflicts.nonEmpty
 

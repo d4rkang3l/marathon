@@ -18,8 +18,10 @@ class DeploymentManagerDelegate(
 
   val requestTimeout: Timeout = config.deploymentManagerRequestDuration
 
-  override def start(plan: DeploymentPlan, force: Boolean, origSender: ActorRef): Future[Done] =
+  override def start(plan: DeploymentPlan, force: Boolean, origSender: ActorRef): Future[Done] = {
+    logger.debug(s"Ask DeploymentManagerActor to run DeploymentPlan=${plan.id}")
     askActorFuture[StartDeployment, Done]("start")(StartDeployment(plan, origSender, force))
+  }
 
   override def cancel(plan: DeploymentPlan): Future[Done] =
     askActorFuture[CancelDeployment, Done]("cancel")(CancelDeployment(plan))
