@@ -331,9 +331,8 @@ a secret in a secret store storing a content of `~/.docker/config.json`.
     "container": {
         "docker": {
             "image": "mesosphere/inky",
-            "config": {
+            "pullConfig": {
                 "secret": "pullConfig"
-                }
             }
         },
         "type": "MESOS"
