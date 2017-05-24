@@ -28,8 +28,8 @@ types:
       pullConfig?:
         type: docker.DockerPullConfig
         description: |
-          Docker's config.json given as a secret name into a secret store
-          which corresponding value is a content of `~/.docker/config.json`.
+          Name of a secret whose value contains a stringified
+          Docker config.json
       forcePull?:
         type: boolean
         description: true if the image should always be pulled

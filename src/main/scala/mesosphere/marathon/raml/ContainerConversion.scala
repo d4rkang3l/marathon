@@ -166,8 +166,8 @@ trait ContainerConversion extends HealthCheckConversion with VolumeConversion wi
 
   implicit val dockerProtoToRamlWriter: Writes[Protos.ExtendedContainerInfo.DockerInfo, DockerContainer] = Writes { docker =>
     DockerContainer(
-      credential = DockerContainer.DefaultCredential, // we don't store credentials in protobuf
-      pullConfig = DockerContainer.DefaultPullConfig, // we don't store a Docker config in protobuf
+      credential = DockerContainer.DefaultCredential, // we don't store credentials in protobuf for Docker containerizer
+      pullConfig = DockerContainer.DefaultPullConfig, // we don't store a Docker config in protobuf for Docker containerizer
       forcePullImage = docker.when(_.hasForcePullImage, _.getForcePullImage).getOrElse(DockerContainer.DefaultForcePullImage),
       image = docker.getImage,
       network = docker.when(_.hasOBSOLETENetwork, _.getOBSOLETENetwork.toRaml).orElse(DockerContainer.DefaultNetwork),
@@ -189,7 +189,8 @@ trait ContainerConversion extends HealthCheckConversion with VolumeConversion wi
     secret.when(_.hasType, _.getType).flatMap {
       case Mesos.Secret.Type.REFERENCE =>
         secret.when(_.hasReference, _.getReference.getName).map(DockerPullConfig(_))
-      case _ => None
+      case unsupported =>
+        throw new SerializationFailedException(s"Failed to deserialize a docker pull config: $unsupported")
     }
   }
 

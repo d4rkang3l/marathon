@@ -159,7 +159,44 @@ The following JSON specifies a Docker image for the pod:
 }
 ```
 
-An optional `image.pullConfig` is supported too. For further details, please refer
+An optional `image.pullConfig` is supported too. Here is an example of
+a pod pulling a Docker image from a private registry: 
+
+```json
+{
+    "id": "/simple-pod",
+    "scaling": {
+        "kind": "fixed",
+        "instances": 1
+    },
+    "containers": [{
+        "name": "container0",
+        "exec": {
+            "command": {
+                "shell": "sleep 1000"
+            }
+        },
+        "image": {
+            "kind": "DOCKER",
+            "id": "company/private-image",
+            "config": {
+                "secret": "configSecret"
+            }
+        },
+        "resources": {
+            "cpus": 1,
+            "mem": 50.0
+        }
+    }],
+    "secrets": {
+        "configSecret": {
+            "source": "/config"
+        }
+    }
+}
+```
+
+For further details, please refer
 to [Configuration of Docker images with Mesos containerizer]({{ site.baseurl }}/docs/native-docker.html).
 
 ## Create and Manage Pods

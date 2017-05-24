@@ -344,8 +344,7 @@ object TaskGroupBuilder extends StrictLogging {
 
       im.kind match {
         case raml.ImageType.Docker =>
-          val docker = mesos.Image.Docker.newBuilder
-            .setName(im.id)
+          val docker = mesos.Image.Docker.newBuilder.setName(im.id)
 
           image.setType(mesos.Image.Type.DOCKER).setDocker(docker)
 

@@ -330,13 +330,14 @@ object DockerPullConfigSerializer {
     secret.when(_.hasType, _.getType).flatMap {
       case mesos.Protos.Secret.Type.REFERENCE =>
         secret.when(_.hasReference, _.getReference.getName).map(Container.DockerPullConfig)
-      case _ => None
+      case unsupported =>
+        throw new SerializationFailedException(s"Failed to deserialize a docker pull config: $unsupported")
     }
   }
 
   def toMesos(pullConfig: Container.DockerPullConfig): mesos.Protos.Secret = pullConfig match {
     case Container.DockerPullConfig(secret) =>
-      mesosphere.mesos.Secret.toSecretReference(secret)
+      SecretSerializer.toSecretReference(secret)
   }
 }
 

@@ -1,8 +1,9 @@
-package mesosphere.mesos
+package mesosphere.marathon
+package api.serialization
 
 import org.apache.mesos.{ Protos => mesos }
 
-object Secret {
+object SecretSerializer {
   def toSecretReference(secret: String): mesos.Secret = {
     val builder = mesos.Secret.newBuilder
     builder.setType(mesos.Secret.Type.REFERENCE)

@@ -293,7 +293,7 @@ the future, as Mesos may not always interact with Docker via the CLI.
 
 ## Configuration
 
-Selected this setup by specifying the follow JSON combination, which
+Selected this setup by specifying the following JSON combination, which
 previously provoked an error message: container type `MESOS` and a
 `docker` object.
 
@@ -319,11 +319,11 @@ containerizers are `image` and `forcePullImage`, with the same
 semantics. All other Docker container properties result in an error
 with the Mesos containerizer.
 
-Starting with Marathon v1.5, Mesos containerizer supports
+Starting with Marathon v1.5, Mesos containerizer supports the
 `container.docker.pullConfig` property, which may be used to specify
 a Docker `config.json` per Docker image. Its `secret` property
-should be set to one of top-level `secrets` field, which refers to
-a secret in a secret store storing a content of `~/.docker/config.json`.
+should be set to one of top-level `secrets` properties, which refers to
+`config.json` in a secret store.
 
 ```json
 {
