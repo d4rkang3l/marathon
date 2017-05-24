@@ -185,20 +185,26 @@ trait ContainerConversion extends HealthCheckConversion with VolumeConversion wi
     )
   }
 
-  implicit val dockerPullConfigProtoRamlWriter: Writes[Mesos.Secret, Option[DockerPullConfig]] = Writes { secret =>
-    secret.when(_.hasType, _.getType).flatMap {
-      case Mesos.Secret.Type.REFERENCE =>
-        secret.when(_.hasReference, _.getReference.getName).map(DockerPullConfig(_))
-      case unsupported =>
-        throw new SerializationFailedException(s"Failed to deserialize a docker pull config: $unsupported")
+  implicit val dockerPullConfigProtoRamlWriter: Writes[Protos.ExtendedContainerInfo.DockerInfo.ImagePullConfig, DockerPullConfig] = Writes { pullConfig =>
+    pullConfig.when(_.getType == Protos.ExtendedContainerInfo.DockerInfo.ImagePullConfig.Type.SECRET, _ => {
+      pullConfig.when(_.hasSecret, _.getSecret).flatMap { secret =>
+        secret.when(_.hasType, _.getType).flatMap {
+          case Mesos.Secret.Type.REFERENCE =>
+            secret.when(_.hasReference, _.getReference.getName).map(DockerPullConfig(_))
+          case _ => None
+        }
+      }
+    }).flatten match {
+      case Some(deserializedPullConfig) => deserializedPullConfig
+      case _ =>
+        throw new SerializationFailedException(s"Failed to deserialize a docker pull config: $pullConfig")
     }
   }
 
   implicit val mesosDockerProtoToRamlWriter: Writes[Protos.ExtendedContainerInfo.MesosDockerInfo, DockerContainer] = Writes { docker =>
     DockerContainer(
       credential = docker.when(_.hasDeprecatedCredential, _.getDeprecatedCredential.toRaml).orElse(DockerContainer.DefaultCredential),
-      pullConfig = docker.when(_.hasPullConfig, _.getPullConfig).flatMap(_.toRaml)
-        .orElse(DockerContainer.DefaultPullConfig),
+      pullConfig = docker.when(_.hasPullConfig, _.getPullConfig.toRaml).orElse(DockerContainer.DefaultPullConfig),
       forcePullImage = docker.when(_.hasForcePullImage, _.getForcePullImage).getOrElse(DockerContainer.DefaultForcePullImage),
       image = docker.getImage
     // was never stored for mesos containers:

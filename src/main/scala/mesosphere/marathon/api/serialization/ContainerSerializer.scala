@@ -326,13 +326,29 @@ object CredentialSerializer {
 }
 
 object DockerPullConfigSerializer {
-  def fromMesos(secret: mesos.Protos.Secret): Option[Container.DockerPullConfig] = {
-    secret.when(_.hasType, _.getType).flatMap {
-      case mesos.Protos.Secret.Type.REFERENCE =>
-        secret.when(_.hasReference, _.getReference.getName).map(Container.DockerPullConfig)
-      case unsupported =>
-        throw new SerializationFailedException(s"Failed to deserialize a docker pull config: $unsupported")
+  def fromProto(pullConfig: Protos.ExtendedContainerInfo.DockerInfo.ImagePullConfig): Container.DockerPullConfig = {
+    pullConfig.when(_.getType == Protos.ExtendedContainerInfo.DockerInfo.ImagePullConfig.Type.SECRET, _ => {
+      pullConfig.when(_.hasSecret, _.getSecret).flatMap { secret =>
+        secret.when(_.hasType, _.getType).flatMap {
+          case mesos.Protos.Secret.Type.REFERENCE =>
+            secret.when(_.hasReference, _.getReference.getName).map(Container.DockerPullConfig)
+          case _ => None
+        }
+      }
+    }).flatten match {
+      case Some(deserializedPullConfig) => deserializedPullConfig
+      case _ =>
+        throw new SerializationFailedException(s"Failed to deserialize a docker pull config: $pullConfig")
     }
+  }
+
+  def toProto(pullConfig: Container.DockerPullConfig): Protos.ExtendedContainerInfo.DockerInfo.ImagePullConfig = pullConfig match {
+    case Container.DockerPullConfig(secret) =>
+      val builder = Protos.ExtendedContainerInfo.DockerInfo.ImagePullConfig.newBuilder
+      builder.setType(Protos.ExtendedContainerInfo.DockerInfo.ImagePullConfig.Type.SECRET)
+      val secretProto = SecretSerializer.toSecretReference(secret)
+      builder.setSecret(secretProto)
+      builder.build
   }
 
   def toMesos(pullConfig: Container.DockerPullConfig): mesos.Protos.Secret = pullConfig match {
@@ -350,7 +366,7 @@ object MesosDockerSerializer {
       portMappings = pms.map(PortMappingSerializer.fromProto)(collection.breakOut),
       image = d.getImage,
       credential = if (d.hasDeprecatedCredential) Some(CredentialSerializer.fromMesos(d.getDeprecatedCredential)) else None,
-      pullConfig = if (d.hasPullConfig) DockerPullConfigSerializer.fromMesos(d.getPullConfig) else None,
+      pullConfig = if (d.hasPullConfig) Some(DockerPullConfigSerializer.fromProto(d.getPullConfig)) else None,
       forcePullImage = if (d.hasForcePullImage) d.getForcePullImage else false
     )
   }
@@ -364,7 +380,7 @@ object MesosDockerSerializer {
       builder.setDeprecatedCredential(CredentialSerializer.toMesos(credential))
     }
     docker.pullConfig.foreach { pullConfig =>
-      builder.setPullConfig(DockerPullConfigSerializer.toMesos(pullConfig))
+      builder.setPullConfig(DockerPullConfigSerializer.toProto(pullConfig))
     }
 
     builder.build
