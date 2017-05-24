@@ -26,7 +26,6 @@ class AppDefinitionSchedulerValidationTest extends UnitTest {
         instances = 1,
         upgradeStrategy = UpgradeStrategy(0, 0),
         labels = Map(
-          Apps.LabelDcosPackageFrameworkName -> frameworkName,
           Apps.LabelDcosMigrationApiVersion -> migrationApiVersion,
           Apps.LabelDcosMigrationApiPath -> migrationApiPath
         )
@@ -58,15 +57,8 @@ class AppDefinitionSchedulerValidationTest extends UnitTest {
       Then("the app is not valid")
       validAppDefinition(step1).isSuccess shouldBe false
 
-      When("the framework label is added")
-      val step2 = normalApp.copy(labels = step1.labels + (
-        Apps.LabelDcosPackageFrameworkName -> "Framework-42"
-      ))
-      Then("the app is not valid")
-      validAppDefinition(step2).isSuccess shouldBe false
-
       When("the Migration API path is added")
-      val step3 = normalApp.copy(labels = step2.labels + (
+      val step3 = normalApp.copy(labels = Map(
         Apps.LabelDcosMigrationApiPath -> "/v1/plan"
       ))
       Then("the app is valid")
@@ -86,15 +78,6 @@ class AppDefinitionSchedulerValidationTest extends UnitTest {
       val f = new Fixture
       Given("a scheduler app with an empty migration path")
       val app = f.schedulerAppWithApi(migrationApiPath = "")
-
-      Then("the validation should fail")
-      validAppDefinition(app).isFailure shouldBe true
-    }
-
-    "If a scheduler application defines DCOS_PACKAGE_FRAMEWORK_NAME it must be non-empty" in {
-      val f = new Fixture
-      Given("a scheduler app with an empty framework name")
-      val app = f.schedulerAppWithApi(frameworkName = "")
 
       Then("the validation should fail")
       validAppDefinition(app).isFailure shouldBe true

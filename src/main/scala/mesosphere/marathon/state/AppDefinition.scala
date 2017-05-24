@@ -482,8 +482,7 @@ object AppDefinition extends GeneralPurposeCombinators {
     }
 
   private val complyWithMigrationAPI: Validator[AppDefinition] =
-    isTrue("DCOS_PACKAGE_FRAMEWORK_NAME and DCOS_MIGRATION_API_PATH must be defined" +
-      " when using DCOS_MIGRATION_API_VERSION") { app =>
+    isTrue("DCOS_MIGRATION_API_PATH must be defined when using DCOS_MIGRATION_API_VERSION") { app =>
       val understandsMigrationProtocol = app.labels.get(Apps.LabelDcosMigrationApiVersion).exists(_.nonEmpty)
 
       // if the api version IS NOT set, we're ok
@@ -491,7 +490,6 @@ object AppDefinition extends GeneralPurposeCombinators {
       def compliesWithMigrationApi =
         app.labels.get(Apps.LabelDcosMigrationApiVersion).fold(true) { apiVersion =>
           apiVersion == "v1" &&
-            app.labels.get(Apps.LabelDcosPackageFrameworkName).exists(_.nonEmpty) &&
             app.labels.get(Apps.LabelDcosMigrationApiPath).exists(_.nonEmpty)
         }
 

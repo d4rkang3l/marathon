@@ -10,7 +10,6 @@ trait Apps {
   val LabelSingleInstanceApp = "MARATHON_SINGLE_INSTANCE_APP"
   val LabelDcosMigrationApiPath = "DCOS_MIGRATION_API_PATH"
   val LabelDcosMigrationApiVersion = "DCOS_MIGRATION_API_VERSION"
-  val LabelDcosPackageFrameworkName = "DCOS_PACKAGE_FRAMEWORK_NAME"
 
   /**
     * should be kept in sync with [[mesosphere.marathon.state.AppDefinition.DefaultNetworks]]
