@@ -50,7 +50,10 @@ private[launchqueue] class LaunchQueueDelegate(
     askQueueActor[LaunchQueueDelegate.Request, Unit]("purge", timeout = purgeTimeout)(LaunchQueueDelegate.Purge(runSpecId))
   }
 
-  override def add(runSpec: RunSpec, count: Int): Unit = askQueueActor[LaunchQueueDelegate.Request, Unit]("add")(LaunchQueueDelegate.Add(runSpec, count))
+  override def add(runSpec: RunSpec, count: Int): Unit = {
+    logger.debug(s"Send Add message: app=${runSpec.id}, count=$count")
+    askQueueActor[LaunchQueueDelegate.Request, Unit]("add")(LaunchQueueDelegate.Add(runSpec, count))
+  }
 
   private[this] def askQueueActor[T, R: ClassTag](
     method: String,

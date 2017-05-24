@@ -181,8 +181,10 @@ private[impl] class LaunchQueueActor(
       }
 
     case Add(app, count) =>
+      log.debug("Received Add message for: app={}, count={}", app.id, count)
       launchers.get(app.id) match {
         case None =>
+          log.debug("Send GetCount to newly created TaskLauncher message for: app{}, count={}", app.id, count)
           import context.dispatcher
           val actorRef = createAppTaskLauncher(app, count)
           val eventualCount: Future[QueuedInstanceInfo] =
@@ -190,6 +192,7 @@ private[impl] class LaunchQueueActor(
           eventualCount.map(_ => ()).pipeTo(sender())
 
         case Some(actorRef) =>
+          log.debug("Send AddInstances message for: app{}, count={}", app.id, count)
           import context.dispatcher
           val eventualCount: Future[QueuedInstanceInfo] =
             (actorRef ? TaskLauncherActor.AddInstances(app, count)).mapTo[QueuedInstanceInfo]

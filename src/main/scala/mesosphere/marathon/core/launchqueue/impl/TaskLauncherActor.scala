@@ -295,11 +295,13 @@ private class TaskLauncherActor(
 
   private[this] def receiveGetCurrentCount: Receive = {
     case TaskLauncherActor.GetCount =>
+      log.debug("Received GetCount for: app={}", runSpec.id)
       replyWithQueuedInstanceCount()
   }
 
   private[this] def receiveAddCount: Receive = {
     case TaskLauncherActor.AddInstances(newRunSpec, addCount) =>
+      log.debug("Received AddInstances for: app={}, count={}", newRunSpec.id, addCount)
       val configChange = runSpec.isUpgrade(newRunSpec)
       if (configChange || runSpec.needsRestart(newRunSpec) || runSpec.isOnlyScaleChange(newRunSpec)) {
         runSpec = newRunSpec
@@ -344,6 +346,7 @@ private class TaskLauncherActor(
     val instancesLaunched = instanceMap.values.count(_.isLaunched)
     val instancesLaunchesInFlight = inFlightInstanceOperations.keys
       .count(instanceId => instanceMap.get(instanceId).exists(_.isLaunched))
+    log.debug("Reply with QueuedInstanceInfo: app={}", runSpec.id)
     sender() ! QueuedInstanceInfo(
       runSpec,
       inProgress = instancesToLaunch > 0 || inFlightInstanceOperations.nonEmpty,
