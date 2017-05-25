@@ -6,7 +6,7 @@ package api.v2.validation
 import com.wix.accord._
 import com.wix.accord.dsl._
 import mesosphere.marathon.api.v2.Validation
-import mesosphere.marathon.raml.{ ArgvCommand, Artifact, CommandHealthCheck, Endpoint, FixedPodScalingPolicy, HealthCheck, HttpHealthCheck, Image, ImageType, Lifecycle, Network, NetworkMode, Pod, PodContainer, PodScalingPolicy, Resources, ShellCommand, TcpHealthCheck, Volume, VolumeMount }
+import mesosphere.marathon.raml.{ ArgvCommand, Artifact, CommandHealthCheck, Endpoint, FixedPodScalingPolicy, HealthCheck, HttpHealthCheck, Image, ImageType, Lifecycle, Network, NetworkMode, Pod, PodContainer, PodScalingPolicy, Resources, SecretDef, ShellCommand, TcpHealthCheck, Volume, VolumeMount }
 import mesosphere.marathon.state.PathId
 import mesosphere.marathon.util.SemanticVersion
 
@@ -114,10 +114,25 @@ trait PodsValidation {
     normalValidation and implied(networks.count(_.mode == NetworkMode.Container) > 1)(hostPortRequiresNetworkName)
   }
 
-  val imageValidator = validator[Image] { image =>
-    image.id.length is between(1, 1024)
-    if (image.kind != ImageType.Docker) {
-      image.pullConfig is isTrue("pullConfig is supported only with Docker images")(_.isEmpty)
+  def imageValidator(secrets: Map[String, SecretDef]): Validator[Image] = new Validator[Image] {
+    override def apply(image: Image): Result = {
+      val dockerImageValidator: Validator[Image] = validator[Image] { image =>
+        image.id.length is between(1, 1024)
+        image.pullConfig is optional(
+          isTrue("pullConfig.secret must refer to an existing secret")(
+            config => secrets.contains(config.secret)))
+      }
+
+      val appcImageValidator: Validator[Image] = validator[Image] { image =>
+        image.id.length is between(1, 1024)
+        image.pullConfig is isTrue("pullConfig is supported only with Docker images")(_.isEmpty)
+      }
+
+      image.kind match {
+        case ImageType.Docker => validate(image)(dockerImageValidator)
+        case ImageType.Appc => validate(image)(appcImageValidator)
+        case _ => Failure(Set(RuleViolation(image, s"Unknown image kind: ${image.kind}", None)))
+      }
     }
   }
 
@@ -143,7 +158,7 @@ trait PodsValidation {
     validator[PodContainer] { container =>
       container.resources is valid(resourceValidator)
       container.endpoints is every(endpointValidator(pod.networks))
-      container.image.getOrElse(Image(ImageType.Docker, "abc")) is valid(imageValidator)
+      container.image is optional(imageValidator(pod.secrets))
       container.environment is envValidator(strictNameValidation = false, pod.secrets, enabledFeatures)
       container.healthCheck is optional(healthCheckValidator(container.endpoints, mesosMasterVersion))
       container.volumeMounts is every(volumeMountValidator(pod.volumes))
